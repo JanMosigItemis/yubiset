@@ -22,8 +22,10 @@ set gpg_home=!gpg_home:/=\!
 echo %me%: %USERNAME%'s gpg home dir is: %gpg_home%
 
 echo Creating backup: %gpg_home%\%conf_backup%
-%silentCopy% %gpg_home%\scdaemon.conf %gpg_home%\%conf_backup% /Y
-%ifErr% echo %me%: Could not create backup file. Exiting. && goto cleanup
+if exist %gpg_home%\scdaemon.conf (
+	%silentCopy% %gpg_home%\scdaemon.conf %gpg_home%\%conf_backup% /Y
+	%ifErr% echo %me%: Could not create backup file. Exiting. && goto cleanup
+)
 
 echo ^#Start: Temporarily added by Yubiset >> %gpg_home%\scdaemon.conf
 echo log-file %scdaemon_log% >> %gpg_home%\scdaemon.conf
@@ -103,3 +105,4 @@ set %~1=!%~1:~0,%last_space%!
 exit /b 0
 
 :end
+endlocal
