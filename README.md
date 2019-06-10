@@ -19,11 +19,6 @@ Use the *GnuPG* package provided with your distribution or follow the instructio
 ## Download
 TBA
 
-## Clone with git  
-```
-git clone git@github.com:JanMosigItemis/yubiset.git
-```
-
 ## Windows
 
 ### Key generation & Yubikey setup
@@ -52,3 +47,11 @@ resetyubi.bat
 cd windows
 findyubi.bat
 ```
+
+# For Developers
+## Clone with git  
+```
+git clone git@github.com:JanMosigItemis/yubiset.git
+```
+## Windows Batch File Line Endings
+Be aware that all Windows batch files need CRLF as line endings (as opposed to LF on Unix) in order for batch labels to work appropriately.

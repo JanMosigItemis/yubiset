@@ -7,6 +7,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set lib_dir=lib
 
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
+%ifErr% echo %error_prefix%: Bootstraping the script failed. Exiting. & call :cleanup & goto end_with_error
 
 call %lib_dir%/pretty_print.bat "Yubikey smartcard slot find and configuration script"
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
@@ -19,14 +20,14 @@ set scdaemon_log=%root_folder%\scdaemon.log
 ::
 echo.
 call %lib_dir%/restart_gpg_agent.bat
-%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. goto end_with_error
+%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. & call :cleanup & goto end_with_error
 
 ::
 :: SCDAEMON RESTART
 ::
 echo.
 call %lib_dir%/restart_scdaemon.bat
-%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. goto end_with_error
+%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
 
 ::
 :: COMM CHECK
@@ -37,9 +38,10 @@ echo Now checking if we are able to communicate with your Yubikey..
 gpg --card-status 2>&1 >nul
 %ifErr% (
 	call %lib_dir%/are_you_sure.bat "..Failed :( This is most likely because your GPG does not know which card reader to use. Should we try setting things up for you"
-	if defined answerisno echo %error_prefix%: We cannot continue without a properly recognized Yubikey. Exiting. goto end_with_error
+	if defined answerisno echo %error_prefix%: We cannot continue without a properly recognized Yubikey. Exiting. & call :cleanup & goto end_with_error
 ) else (
 	echo ..Success!
+	call :cleanup
 	goto end
 )
 
@@ -49,7 +51,7 @@ gpg --card-status 2>&1 >nul
 echo.
 echo In order to find the correct card slot, we need to switch scdaemon into debug mode. This is done via a change to the config file. We are going to reset the changes, when we are done. Promise :)
 call %lib_dir%/are_you_sure.bat "Continue"
-if defined answerisno goto end_with_error
+if defined answerisno call :cleanup & goto end_with_error
 
 if exist %gpg_home%\scdaemon.conf (
 	echo Now creating backup: %gpg_home%\%conf_backup%
@@ -73,14 +75,14 @@ pause
 ::
 echo.
 call %lib_dir%/restart_gpg_agent.bat
-%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. && call :cleanup && goto end_with_error
+%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. & call :cleanup & goto end_with_error
 
 ::
 :: SCDAEMON RESTART
 ::
 echo.
 call %lib_dir%/restart_scdaemon.bat
-%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. && call :cleanup && goto end_with_error
+%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
 
 echo Please insert your YubiKey.
 pause
@@ -125,7 +127,7 @@ echo Writing scdaemon.conf..
 call :cleanup
 echo reader-port "%reader_port_candidate%">> %gpg_home%\scdaemon.conf
 call %lib_dir%/restart_scdaemon.bat
-%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. && goto end_with_error
+%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
 echo.
 ::
 :: COMM CHECK
@@ -134,10 +136,13 @@ call %lib_dir%/reinsert_yubi.bat
 
 echo Now checking if we are able to communicate with your Yubikey..
 gpg --card-status 2>&1 >nul
-%ifErr% echo Sorry, setting up your Yubikey did not work. Exiting. goto end_with_error
+%ifErr% echo Sorry, setting up your Yubikey did not work. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
+
+call :cleanup
 goto end
 
+:: Function start
 :removeLastSpaceAndTail
 set pos=-1
 set last_space=0
@@ -148,14 +153,17 @@ if "%current_char%"==" " set last_space=%pos%
 if "%current_char%" NEQ "" goto removeLastSpaceAndTail_loop
 set %~1=!%~1:~0,%last_space%!
 exit /b 0
+:: Function end
 
+:: Function start
 :cleanup
 %silentCopy% %gpg_home%\%conf_backup% %gpg_home%\scdaemon.conf /Y
 %silentDel% %gpg_home%\%conf_backup%
 %silentDel% %scdaemon_log%
 call %lib_dir%/restart_scdaemon.bat
-%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. && call :cleanup && goto end_with_error
+%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & goto end_with_error
 exit /b 0
+:: Function end
 
 :end_with_error
 endlocal

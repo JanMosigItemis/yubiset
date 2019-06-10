@@ -14,6 +14,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set lib_dir=lib
 
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
+%ifErr% echo %error_prefix%: Bootstraping the script failed. Exiting. & call :cleanup & goto end_with_error
 
 call %lib_dir%/pretty_print.bat "Yubikey setup and key to card script"
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
@@ -39,7 +40,7 @@ if defined answerisno goto enterPersonalInfo
 echo.
 echo Remember: Default PIN is 123456 ^| Default Admin PIN is 12345678
 type %pin_input% | gpg --command-fd=0 --status-fd=1 --card-edit --expert 2>&1 >nul
-%ifErr% echo %error_prefix%: Setting the PINs ran into an error. Exiting. && goto end_with_error
+%ifErr% echo %error_prefix%: Setting the PINs ran into an error. Exiting. & call :cleanup & goto end_with_error
 echo PIN setup successfull!
 
 ::
@@ -73,20 +74,22 @@ call %lib_dir%/are_you_sure.bat "Write personal information to your Yubikey"
 if defined answerisno goto keytocard
 echo Now writing..
 type %pers_info_input% | gpg --command-fd=0 --status-fd=1 --card-edit --expert 2>&1 >nul
-%ifErr% echo %error_prefix%: Writing personal data to Yubikey ran into an error. Exiting. && goto end_with_error
+%ifErr% echo %error_prefix%: Writing personal data to Yubikey ran into an error. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
 :keytocard
 echo.
 call %lib_dir%/are_you_sure.bat "Move your subkeys to your Yubikey"
-if defined answerisno goto end
+if defined answerisno call :cleanup & goto end
 echo Now moving keys..
 type %keytocard_input% | gpg --command-fd=0 --status-fd=1 --pinentry-mode loopback --passphrase %passphrase% --edit-key --expert %key_id% 2>&1 >nul
-%ifErr% echo %me%: Moving GPG keys to Yubikey ran into an error. Exiting. && goto end_with_error
+%ifErr% echo %me%: Moving GPG keys to Yubikey ran into an error. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
+call :cleanup
 goto end
 
+:: Function start
 :splitAtLastSpace
 set pos=-1
 set last_space=0
@@ -101,18 +104,19 @@ set /a last_space+=1
 set /a pos-=1
 set %~3=!%~1:~%last_space%,%pos%!
 exit /b 0
+:: Function end
 
+:: Function start
 :cleanup
 :: In case things get canceled by the user, this file may need some time to be "deletable" thanks to windows file system caching.
 timeout /T 2 /NOBREAK
 %silentDel% %pers_info_input%
 exit /b 0
+:: Function stop
 
 :end_with_error
-call :cleanup
 endlocal
 exit /b 1
 
 :end
-call :cleanup
 endlocal
