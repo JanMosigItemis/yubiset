@@ -16,6 +16,7 @@ set lib_dir=lib
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
 
 call %lib_dir%/pretty_print.bat "Yubikey setup and key to card script"
+call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
 set user_name=%~1
 set user_email=%~2
