@@ -9,6 +9,7 @@ set lib_dir=lib
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
 
 call %lib_dir%/pretty_print.bat "Yubikey reset script"
+call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
 call %lib_dir%/are_you_sure.bat "About to reset your YubiKey's OpenPGP module. Continue"
 if defined answerisno goto end_with_error

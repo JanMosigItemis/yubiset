@@ -1,5 +1,6 @@
 @ECHO OFF
 
+set yubiset_version=1.0.0
 set me=%~1
 set root_folder=%~2..
 set "error_prefix=ERROR"

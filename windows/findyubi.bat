@@ -9,6 +9,8 @@ set lib_dir=lib
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
 
 call %lib_dir%/pretty_print.bat "Yubikey smartcard slot find and configuration script"
+call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
+
 set conf_backup=scdaemon.conf.orig
 set scdaemon_log=%root_folder%\scdaemon.log
 

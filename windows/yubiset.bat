@@ -8,6 +8,7 @@ set lib_dir=lib
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
 
 call %lib_dir%/pretty_print.bat "OpenPGP key generation and Yubikey setup script"
+call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
 set keygen_input=%input_dir%\keygen.input
 set keygen_input_copy=%root_folder%\keygen.input.copy
