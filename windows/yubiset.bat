@@ -103,8 +103,11 @@ echo ..Success!
 echo.
 echo We are about to backup the generated stuff..
 echo %TAB%Revocation certificate: %key_dir%\%key_id%.rev
-set key_dir=%root_folder%\%key_id%
+set key_dir=%key_backups_dir%\%key_id%
+
+:: Does only create intermediate non existing directories if command extensions are enabled which should be the case at this point of the script.
 mkdir %key_dir%
+
 type %revoke_input% | gpg --command-fd=0 --status-fd=1 --output %key_dir%\%key_id%.rev --gen-revoke --pinentry-mode loopback --passphrase %passphrase% %key_id%
 %ifErr% echo %error_prefix%: Could not generate copy of revocation certificate. Exiting. && goto end
 
@@ -154,8 +157,10 @@ echo Dryrun: gpg --send-keys %key_id%
 :key_generation_result
 echo.
 call %lib_dir%/pretty_print.bat "Key generation result overview"
+call %lib_dir%/pretty_print.bat ""
 call %lib_dir%/pretty_print.bat "Your key id: %key_id%"
 call %lib_dir%/pretty_print.bat "Your key fingerprint: %key_fpr%"
+call %lib_dir%/pretty_print.bat "Backups are in: %key_dir%"
 
 ::
 :: YUBIKEY SECTION
