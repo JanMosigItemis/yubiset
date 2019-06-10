@@ -22,9 +22,9 @@ set user_email=%~2
 set key_id=%~3
 set passphrase=%~4
 
-set pin_input=%root_folder%\pin.input
-set pers_info_input=%root_folder%\pers_info.input
-set keytocard_input=%root_folder%\keytocard.input
+set pin_input=%input_dir%\pin.input
+set pers_info_input=%input_dir%\pers_info.input
+set keytocard_input=%input_dir%\keytocard.input
 
 call :splitAtLastSpace user_name given_name sur_name
 

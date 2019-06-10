@@ -9,14 +9,14 @@ call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
 
 call %lib_dir%/pretty_print.bat "OpenPGP key generation and Yubikey setup script"
 
-set keygen_input=%root_folder%\keygen.input
+set keygen_input=%input_dir%\keygen.input
 set keygen_input_copy=%root_folder%\keygen.input.copy
-set subkeys_input=%root_folder%\subkeys.input
-set revoke_input=%root_folder%\revoke.input
+set subkeys_input=%input_dir%\subkeys.input
+set revoke_input=%input_dir%\revoke.input
 set subkey_length=4096
 
 if "%~1" == "4" (
-	set subkeys_input=%root_folder%\subkeys_2048.input
+	set subkeys_input=%input_dir%\subkeys_2048.input
 	set subkey_length=2048
 )
 call %lib_dir%/pretty_print.bat "Subkeys will have keylength: %subkey_length%"
@@ -46,9 +46,9 @@ if exist %gpg_home%\gpg-agent.conf (
 	%ifErr% echo %error_prefix%: Creating backup of gpg-agent.conf failed. Exiting. && goto end
 )
 
-%silentCopy% %root_folder%\gpg.conf %gpg_home%\gpg.conf /Y
+%silentCopy% %conf_dir%\gpg.conf %gpg_home%\gpg.conf /Y
 %ifErr% echo %error_prefix%: Replacing gpg.conf failed. Exiting. && goto end
-%silentCopy% %root_folder%\gpg-agent.conf %gpg_home%\gpg-agent.conf /Y
+%silentCopy% %conf_dir%\gpg-agent.conf %gpg_home%\gpg-agent.conf /Y
 %ifErr% echo %error_prefix%: Replacing gpg-agent.conf failed. Exiting. && goto end
 echo ..Success!
 
