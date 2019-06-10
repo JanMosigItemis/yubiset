@@ -240,3 +240,6 @@ gradle-app.setting
 
 # Yubiset key backup directory
 key_backups
+
+#Yubiset temp directory
+temp

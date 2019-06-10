@@ -1,11 +1,15 @@
 @ECHO OFF
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
-::
-:: SETUP SECTION
-::
 echo Now restarting scdaemon..
 gpgconf --reload scdaemon
-%ifErr% exit /b 1
+%ifErr% goto end_with_error
 echo ..Success!
+goto end
+
+:end_with_error
+endlocal
+exit /b 1
 
 :end
+endlocal

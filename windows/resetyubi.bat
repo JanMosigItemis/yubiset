@@ -7,6 +7,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set lib_dir=lib
 
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
+%ifErr% echo %error_prefix%: Bootstraping the script failed. Exiting. & goto end_with_error
 
 call %lib_dir%/pretty_print.bat "Yubikey reset script"
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
@@ -16,7 +17,7 @@ if defined answerisno goto end_with_error
 
 echo Now resetting..
 gpg-connect-agent < %input_dir%/resetyubi.input 2>&1 >nul
-%ifErr% echo %error_prefix%: Could not properly reset your Yubikey. Exiting. && goto end
+%ifErr% echo %error_prefix%: Could not properly reset your Yubikey. Exiting. & goto end_with_error
 echo ..Success!
 
 echo.
