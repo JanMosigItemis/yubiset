@@ -6,7 +6,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 :: Arg 2: Full path to yubiset windows script folder
 ::
 
-set yubiset_version=1.0.0
+set yubiset_version=0.1.0
 set me=%~1
 set root_folder=%~2..
 set error_prefix=ERROR
