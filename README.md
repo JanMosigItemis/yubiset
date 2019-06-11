@@ -3,6 +3,13 @@ A collection of scripts to make OpenPGP key generation and YubiKey manipulation 
 
 Currently only Windows is supported. Bash script for Linux & Mac will follow.
 
+# What does it do?
+It generates the "perfect" key pair, puts in some reasonable values for account / user id information and optionally transfers keys to a [Yubikey](www.yubico.com) device.
+
+The Yubikey is also provided with user info and PIN setup.
+
+The scripts do also feature a heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.
+
 # Prerequisites  
 The only thing you'll need is a working gpg installation:
 
