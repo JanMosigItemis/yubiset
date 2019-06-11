@@ -22,34 +22,35 @@ Use the *GnuPG* package provided with your distribution or follow the instructio
 ## Mac  
 [gpgtools](https://gpgtools.org)
 
-# Usage
-## Download
+# Download
 TBA
+
+# Usage
 
 ## Windows
 
-### Key generation & Yubikey setup
+### Start here: Key generation & Yubikey setup (all in one script)
 ```
-git clone git@github.com:JanMosigItemis/yubiset.git
 cd yubiset\windows
 yubiset.bat
 ```
 In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `yubiset 4` instead.
 
-### Move PGP keys to Yubikey only
+The following scripts may be used standalone but are also called from the `yubiset` main script:
+#### Move PGP keys to Yubikey only
 ```
 cd windows
 setupyubi.bat "Given Name Surname" "my.email@provider.com" "PGP key id" "passphrase"
 ```
 
-### Reset Yubikey's OpenPGP module
+#### Reset Yubikey's OpenPGP module
 **BE AWARE:** Only tested with Yubikey 4 NEO and Yubikey 5
 ```
 cd windows
 resetyubi.bat
 ```
 
-### Find Yubikey Slot
+#### Find Yubikey Slot
 ```
 cd windows
 findyubi.bat
