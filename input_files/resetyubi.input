@@ -1,3 +1,4 @@
+/echo Yubikey reset input comes from https://gist.github.com/pkirkovsky/c3d703633effbdfcb48c
 /hex
 scd serialno
 scd apdu 00 20 00 81 08 40 40 40 40 40 40 40 40
