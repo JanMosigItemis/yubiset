@@ -23,7 +23,7 @@ Use the *GnuPG* package provided with your distribution or follow the instructio
 [gpgtools](https://gpgtools.org)
 
 # Download
-TBA
+[https://github.com/JanMosigItemis/yubiset/releases](https://github.com/JanMosigItemis/yubiset/releases)
 
 # Usage
 
