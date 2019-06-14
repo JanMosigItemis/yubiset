@@ -88,7 +88,7 @@ type %keygen_input_copy% | gpg --command-fd=0 --status-fd=1 --expert --full-gen-
 %ifErr% echo %error_prefix%: Generating the keypair raised an error. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
-:: find print secret keys, find all lines beginning with "sec", extract 5th token and store into i. The last value stored into i will be the id of the key just created.
+:: print secret keys, find all lines beginning with "sec", extract 5th token and store into i. The last value stored into i will be the id of the key just created.
 :: Line example: sec:u:4096:1:91E21FE19B31FF56:1558085668:1589621668::u:::cC:::+:::23::0:
 for /f "tokens=5 delims=:" %%i in ('gpg -K --with-colons ^| findstr /C:"sec"') do set key_id=%%i
 %ifErr% echo %error_prefix%: Could not figure out key id. Exiting. & call :cleanup & goto end_with_error
@@ -107,8 +107,8 @@ echo ..Success!
 ::
 echo.
 echo We are about to backup the generated stuff..
-echo %TAB%Revocation certificate: %key_dir%\%key_id%.rev
 set key_dir=%key_backups_dir%\%key_id%
+echo %TAB%Revocation certificate: %key_dir%\%key_id%.rev
 
 :: Does only create intermediate non existing directories if command extensions are enabled which should be the case at this point of the script.
 mkdir %key_dir%
