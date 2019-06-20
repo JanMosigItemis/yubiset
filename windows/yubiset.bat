@@ -7,6 +7,8 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set lib_dir=lib
 call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
 %ifErr% echo %error_prefix%: Bootstraping the script failed. Exiting. & call :cleanup & goto end_with_error
+:: Make sure to always set this after bootstrapping, so that the setup script may create the temp dir correctly.
+set YUBISET_MAIN_SCRIPT_RUNS=y
 
 call %lib_dir%/pretty_print.bat "OpenPGP key generation and Yubikey setup script"
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
@@ -201,8 +203,9 @@ call :cleanup
 goto end
 
 :cleanup
+set YUBISET_MAIN_SCRIPT_RUNS=
 %silentDel% %keygen_input_copy%
-if defined temp_must_be_removed rmdir /S /Q %yubiset_temp_dir%
+rd /S /Q %yubiset_temp_dir%
 exit /b 0
 
 :end_with_error

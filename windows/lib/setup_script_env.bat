@@ -19,16 +19,16 @@ set conf_dir=%root_folder%\conf_templates
 set input_dir=%root_folder%\input_files
 set key_backups_dir=%root_folder%\key_backups
 
-set yubiset_temp_dir=%TEMP%
-set if_result=
-if not defined yubiset_temp_dir set if_result=y
-if not exist %yubiset_temp_dir%\NUL set if_result=y
-if defined if_result (
+if not defined TEMP (
 	echo Could not identify temporary directory to use. Going to create one.
 	set yubiset_temp_dir=%root_folder%\temp
-	set temp_must_be_removed=y
-	:: See https://stackoverflow.com/a/4165472
-	if not exist !yubiset_temp_dir!\NUL mkdir !yubiset_temp_dir!
+) else (
+	set yubiset_temp_dir=%TEMP%\yubiset
+)
+
+if not defined YUBISET_MAIN_SCRIPT_RUNS (
+	rd /S /Q !yubiset_temp_dir!
+	mkdir !yubiset_temp_dir!
 	%ifErr% echo %error_prefix%: Could not create temp directory. Exiting. && goto end_with_error
 )
 
@@ -37,6 +37,7 @@ for /f "tokens=2 delims= " %%i in ('gpg --version ^| findstr /C:"Home"') do set 
 
 :: Replace forward slashes with backslashes
 set gpg_home=!gpg_home:/=\!
+
 goto end
 
 :end_with_error

@@ -37,7 +37,8 @@ call %lib_dir%/reinsert_yubi.bat
 echo Now checking if we are able to communicate with your Yubikey..
 gpg --card-status 2>&1 >nul
 %ifErr% (
-	call %lib_dir%/are_you_sure.bat "..Failed :( This is most likely because your GPG does not know which card reader to use. Should we try setting things up for you"
+	echo "..Failed :("
+	call %lib_dir%/are_you_sure.bat "This is most likely because your GPG does not know which card reader to use. Should we try setting things up for you"
 	if defined answerisno echo %error_prefix%: We cannot continue without a properly recognized Yubikey. Exiting. & call :cleanup & goto end_with_error
 ) else (
 	echo ..Success!
@@ -60,6 +61,7 @@ if exist %gpg_home%\scdaemon.conf (
 	echo ..Success!
 )
 
+echo.>> %gpg_home%\scdaemon.conf
 echo ^#Start: Temporarily added by Yubiset>> %gpg_home%\scdaemon.conf
 echo log-file %scdaemon_log%>> %gpg_home%\scdaemon.conf
 echo debug-level guru>> %gpg_home%\scdaemon.conf
@@ -87,7 +89,7 @@ call %lib_dir%/restart_scdaemon.bat
 echo Please insert your YubiKey.
 pause
 
-echo Now running generating debug log..
+echo Now generating debug log..
 gpg --card-status 2>&1 >nul
 echo ..Done!
 
@@ -160,6 +162,7 @@ exit /b 0
 %silentCopy% %gpg_home%\%conf_backup% %gpg_home%\scdaemon.conf /Y
 %silentDel% %gpg_home%\%conf_backup%
 %silentDel% %scdaemon_log%
+if not defined YUBISET_MAIN_SCRIPT_RUNS rd /S /Q %yubiset_temp_dir%
 call %lib_dir%/restart_scdaemon.bat
 %ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & goto end_with_error
 exit /b 0
