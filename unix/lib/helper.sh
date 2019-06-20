@@ -94,3 +94,25 @@ restart_gpg_agent()
 	"${YUBISET_GPG_CONNECT_AGENT}" reloadagent '' /bye
 	echo ..Success!
 }
+
+#
+# Restart the scdaemon
+#
+restart_scdaemon()
+{
+	echo Now restarting scdaemon..
+	"${YUBISET_GPG_CONF}" --reload scdaemon
+	echo ..Success!
+}
+
+#
+# Requests the user to remove and reinsert her Yubikey and waits between those steps for the user to finish.
+#
+reinsert_yubi()
+{
+echo
+echo Please remove your Yubikey
+press_any_key
+echo Please insert your Yubikey
+press_any_key
+}

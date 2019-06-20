@@ -59,6 +59,8 @@ if exist %gpg_home%\scdaemon.conf (
 	%silentCopy% %gpg_home%\scdaemon.conf %gpg_home%\%conf_backup% /Y
 	%ifErr% echo %error_prefix%: Could not create backup of scdaemon.conf. Exiting. && call :cleanup && goto end_with_error
 	echo ..Success!
+) else (
+	echo>>%gpg_home%\%conf_backup%
 )
 
 echo.>> %gpg_home%\scdaemon.conf
@@ -94,13 +96,6 @@ gpg --card-status 2>&1 >nul
 echo ..Done!
 
 ::
-:: DEACTIVATE SCDAEMON DEBUG MODE
-::
-echo.
-echo Now switching off debug mode..
-call :cleanup
-
-::
 :: PROCESS DEBUG LOG
 ::
 set array_index=0
@@ -124,6 +119,13 @@ call :cleanup
 goto end_with_error
 
 :addReaderToConf
+::
+:: DEACTIVATE SCDAEMON DEBUG MODE
+::
+echo.
+echo Now switching off debug mode..
+call :cleanup
+
 echo.
 echo Writing scdaemon.conf..
 call :cleanup

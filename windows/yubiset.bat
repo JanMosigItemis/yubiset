@@ -179,12 +179,13 @@ if defined answerisno goto end
 echo Checking if we can access your Yubikey..
 call findyubi.bat
 %ifErr% echo %error_prefix%: Could not communicate with your Yubikey. Exiting. & call :cleanup & goto end_with_error
+echo Ok, Yubikey communication works!
 
 ::
 :: RESET YUBIKEY
 ::
 echo.
-echo Ok, now we must reset the OpenPGP module of your Yubikey..
+echo Now we must reset the OpenPGP module of your Yubikey..
 call resetyubi.bat
 %ifErr% echo %error_prefix%: Resetting YubiKey ran into an error. Exiting. & call :cleanup & goto end_with_error
 

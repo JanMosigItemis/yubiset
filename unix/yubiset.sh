@@ -3,6 +3,7 @@
 declare -r lib_dir=lib
 . "${lib_dir}"/bootstrap.sh
 . "${lib_dir}"/helper.sh
+declare -r yubiset_main_script_runs=true
 
 declare -r keygen_input="${input_dir}"/keygen.input
 declare -r keygen_input_copy="${temp_dir}"/keygen.input.copy
@@ -27,8 +28,8 @@ press_any_key
 
 cleanup()
 {
-	#silentDel "${keygen_input_copy}"
-	#silentDel "${temp_dir}"
+	silentDel "${keygen_input_copy}"
+	silentDel "${temp_dir}"
 	echo
 }
 
@@ -150,3 +151,32 @@ echo
 if $(are_you_sure "Should the generated public key be uploaded to your configured keyserver") ; then
 	echo Dryrun: gpg --send-keys "${key_id}"
 fi
+
+#
+# KEY GENERATION RESULT OVERVIEW
+#
+echo 
+pretty_print "Key generation result overview"
+pretty_print ""
+pretty_print "Your key id: ${key_id}"
+pretty_print "Your key fingerprint: ${key_fpr}"
+pretty_print "Backups are in: ${key_dir}"
+
+#
+# YUBIKEY SECTION
+#
+echo
+if ! $(are_you_sure "Should we continue with setting up your YubiKey") ; then cleanup; exit 0 ; fi
+
+echo Checking if we can access your Yubikey..
+(. ./findyubi.sh) || { cleanup; end_with_error "Could not communicate with your Yubikey." ; }
+echo "Ok, Yubikey communication is working!"
+
+#
+# RESET YUBIKEY
+#
+echo
+echo Now we must reset the OpenPGP module of your Yubikey..
+(. ./resetyubi.sh) || { cleanup; end_with_error "Resetting YubiKey ran into an error." ; }
+
+cleanup

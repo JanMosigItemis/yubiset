@@ -16,13 +16,13 @@ call %lib_dir%/are_you_sure.bat "About to reset your YubiKey's OpenPGP module. C
 if defined answerisno call :cleanup & goto end_with_error
 
 echo Now resetting..
-gpg-connect-agent < %input_dir%/resetyubi.input 2>&1 >nul
+gpg-connect-agent < %input_dir%\resetyubi.input 2>&1 >nul
 %ifErr% echo %error_prefix%: Could not properly reset your Yubikey. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
 echo.
-call %lib_dir%/pretty_print "PIN: 123456"
-call %lib_dir%/pretty_print "Admin PIN: 12345678"
+call %lib_dir%/pretty_print.bat "PIN: 123456"
+call %lib_dir%/pretty_print.bat "Admin PIN: 12345678"
 call %lib_dir%/reinsert_yubi.bat
 
 call :cleanup
