@@ -30,7 +30,7 @@ goto end
 
 :: Function start
 :cleanup
-if not defined YUBISET_MAIN_SCRIPT_RUNS rd /S /Q %yubiset_temp_dir%
+if not defined YUBISET_MAIN_SCRIPT_RUNS rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 exit /b 0
 :: Function end
 

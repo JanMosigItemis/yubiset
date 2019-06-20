@@ -12,7 +12,7 @@ set root_folder=%~2..
 set error_prefix=ERROR
 set LANG=EN
 set "ifErr=set foundErr=1&(if errorlevel 0 if not errorlevel 1 set foundErr=)&if defined foundErr"
-set "silentDel=del >nul 2>&1"
+set "silentDel=del >nul 2>&1 /Q"
 set "silentCopy=copy >nul 2>&1"
 set "TAB=    "
 set conf_dir=%root_folder%\conf_templates
@@ -27,7 +27,7 @@ if not defined TEMP (
 )
 
 if not defined YUBISET_MAIN_SCRIPT_RUNS (
-	rd /S /Q !yubiset_temp_dir!
+	rd /S /Q !yubiset_temp_dir! >nul 2>&1
 	mkdir !yubiset_temp_dir!
 	%ifErr% echo %error_prefix%: Could not create temp directory. Exiting. && goto end_with_error
 )

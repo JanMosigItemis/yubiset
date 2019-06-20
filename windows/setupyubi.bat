@@ -111,7 +111,7 @@ exit /b 0
 :: In case things get canceled by the user, this file may need some time to be "deletable" thanks to windows file system caching.
 timeout /T 2 /NOBREAK
 %silentDel% %pers_info_input%
-if not defined YUBISET_MAIN_SCRIPT_RUNS rd /S /Q %yubiset_temp_dir%
+if not defined YUBISET_MAIN_SCRIPT_RUNS rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 exit /b 0
 :: Function end
 

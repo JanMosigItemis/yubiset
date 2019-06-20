@@ -206,7 +206,7 @@ goto end
 :cleanup
 set YUBISET_MAIN_SCRIPT_RUNS=
 %silentDel% %keygen_input_copy%
-rd /S /Q %yubiset_temp_dir%
+rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 exit /b 0
 
 :end_with_error

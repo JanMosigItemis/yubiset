@@ -13,7 +13,7 @@ call %lib_dir%/pretty_print.bat "Yubikey smartcard slot find and configuration s
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
 set conf_backup=scdaemon.conf.orig
-set scdaemon_log=%root_folder%\scdaemon.log
+set scdaemon_log=%yubiset_temp_dir%\scdaemon.log
 
 ::
 :: GPG AGENT RESTART
@@ -129,6 +129,8 @@ call :cleanup
 echo.
 echo Writing scdaemon.conf..
 call :cleanup
+echo.>> %gpg_home%\scdaemon.conf
+echo ^#Added by yubiset:>> %gpg_home%\scdaemon.conf
 echo reader-port "%reader_port_candidate%">> %gpg_home%\scdaemon.conf
 call %lib_dir%/restart_scdaemon.bat
 %ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
@@ -163,8 +165,7 @@ exit /b 0
 :cleanup
 %silentCopy% %gpg_home%\%conf_backup% %gpg_home%\scdaemon.conf /Y
 %silentDel% %gpg_home%\%conf_backup%
-%silentDel% %scdaemon_log%
-if not defined YUBISET_MAIN_SCRIPT_RUNS rd /S /Q %yubiset_temp_dir%
+if not defined YUBISET_MAIN_SCRIPT_RUNS rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 call %lib_dir%/restart_scdaemon.bat
 %ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & goto end_with_error
 exit /b 0
