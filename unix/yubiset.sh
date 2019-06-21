@@ -7,11 +7,15 @@ declare -r yubiset_main_script_runs=true
 
 declare -r keygen_input="${input_dir}"/keygen.input
 declare -r keygen_input_copy="${temp_dir}"/keygen.input.copy
-declare -r subkeys_input="${input_dir}"/subkeys.input
-declare -r revoke_input="${input_dir}"/revoke.input
+if [[ "${1}" -eq "4" ]]; then 
+	declare -r subkey_length=2048
+	declare -r subkeys_input="${input_dir}"/subkeys_2048.input
+else
+	declare -r subkey_length=4096
+	declare -r subkeys_input="${input_dir}"/subkeys.input
+fi
 
-subkey_length=4096
-if [[ "${1}" -eq "4" ]]; then subkey_length=2048; fi
+declare -r revoke_input="${input_dir}"/revoke.input
 
 pretty_print "OpenPGP key generation and Yubikey setup script"
 pretty_print "Version: ${yubiset_version}"
@@ -178,5 +182,14 @@ echo "Ok, Yubikey communication is working!"
 echo
 echo Now we must reset the OpenPGP module of your Yubikey..
 (. ./resetyubi.sh) || { cleanup; end_with_error "Resetting YubiKey ran into an error." ; }
+
+#
+# YUBIKEY SETUP AND KEYTOCARD
+#
+echo
+echo Now we need to setup your Yubikey and move the generated subkeys to it..
+(. ./setupyubi.sh) || { cleanup; end_with_error "Setting up your Yubikey ran into an error." ; }
+
+pretty_print "All done! Exiting now."
 
 cleanup

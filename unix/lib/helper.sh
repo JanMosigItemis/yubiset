@@ -52,14 +52,14 @@ press_any_key() {
 # Return: true if yY, false if nN or empty (user just hit enter).
 are_you_sure() {
 	while true; do
-	local _yn=n
-    read -p "${1} (y/[n])? " _yn
-    case $_yn in
-        [Yy]* ) echo true; break;;
-        [Nn]* ) echo false; break;;
-		""    ) echo false; break;;
-    esac
-done
+		local _yn=n
+		read -p "${1} (y/[n])? " _yn
+		case $_yn in
+			[Yy]* ) echo true; break;;
+			[Nn]* ) echo false; break;;
+			""    ) echo false; break;;
+		esac
+	done
 }
 
 #

@@ -25,7 +25,7 @@ set key_id=%~3
 set passphrase=%~4
 
 set pin_input=%input_dir%\pin.input
-set pers_info_input=%input_dir%\pers_info.input
+set pers_info_input=!yubiset_temp_dir!\pers_info.input
 set keytocard_input=%input_dir%\keytocard.input
 
 call :splitAtLastSpace user_name given_name sur_name
@@ -48,7 +48,11 @@ echo PIN setup successfull!
 ::
 :enterPersonalInfo
 echo.
-echo Now we must collect some personal info of yours..
+call %lib_dir%/are_you_sure.bat "Should personal info be modified"
+if defined answerisno goto keytocard
+
+echo.
+echo First we must collect some personal info of yours..
 set /p lang_pref=Enter your language pref (e.g. en): 
 :sex
 set /p sex=Enter your sex (m/w): 
@@ -108,9 +112,6 @@ exit /b 0
 
 :: Function start
 :cleanup
-:: In case things get canceled by the user, this file may need some time to be "deletable" thanks to windows file system caching.
-timeout /T 2 /NOBREAK
-%silentDel% %pers_info_input%
 if not defined YUBISET_MAIN_SCRIPT_RUNS rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 exit /b 0
 :: Function end

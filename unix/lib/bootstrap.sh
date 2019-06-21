@@ -28,13 +28,13 @@ fi
 if [[ -z "${conf_dir}" ]] ; then declare -r conf_dir="${root_folder}/conf_templates" ; fi
 if [[ -z "${input_dir}" ]] ; then declare -r input_dir="${root_folder}/input_files" ; fi
 if [[ -z "${key_backups_dir}" ]] ; then declare -r key_backups_dir="${root_folder}/key_backups" ; fi
-if [[ -z "${temp_dir}" ]] ; then declare -r temp_dir="/tmp/yubiset" ; fi
-
-if [[ -d "${temp_dir}" ]]; then
-	rm -rf "${temp_dir}" > /dev/null 2>&1 || { cleanup; end_with_error "Could not cleanup temporary directory.";}
+if [[ -z "${temp_dir}" ]] ; then 
+	declare -r temp_dir="/tmp/yubiset"
+	if [[ -d "${temp_dir}" ]]; then
+		rm -rf "${temp_dir}" > /dev/null 2>&1 || { cleanup; end_with_error "Could not cleanup temporary directory.";}
+	fi
+	mkdir -p "${temp_dir}" || { cleanup; end_with_error "Could not create temporary directory.";}
 fi
-mkdir -p "${temp_dir}" || { cleanup; end_with_error "Could not create temporary directory.";}
-
 
 if [[ "${YUBISET_GPG_OVERRIDE}" ]] && [[ -z "${YUBISET_GPG_OVERRIDE_DONE}" ]] ; then
 	. "${YUBISET_GPG_OVERRIDE}" || { cleanup; end_with_error "Sourcing the gpg override failed."; }
