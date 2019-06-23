@@ -5,13 +5,10 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 :: SETUP SECTION
 ::
 set lib_dir=lib
-call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
+call %lib_dir%/bootstrap.bat "%~n0" "%~dp0"
 %ifErr% echo %error_prefix%: Bootstraping the script failed. Exiting. & call :cleanup & goto end_with_error
 :: Make sure to always set this after bootstrapping, so that the setup script may create the temp dir correctly.
 set YUBISET_MAIN_SCRIPT_RUNS=y
-
-call %lib_dir%/pretty_print.bat "OpenPGP key generation and Yubikey setup script"
-call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
 set keygen_input=%input_dir%\keygen.input
 set keygen_input_copy=%yubiset_temp_dir%\keygen.input.copy
@@ -23,8 +20,16 @@ if "%~1" == "4" (
 	set subkeys_input=%input_dir%\subkeys_2048.input
 	set subkey_length=2048
 )
-call %lib_dir%/pretty_print.bat "Subkeys will have keylength: %subkey_length% bit."
-call %lib_dir%/pretty_print.bat "Using %yubiset_temp_dir% as temporary directory."
+
+call %lib_dir%/pretty_print.bat "OpenPGP key generation and Yubikey setup script"
+call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
+call %lib_dir%/pretty_print.bat ""
+call %lib_dir%/pretty_print.bat "gpg home: %gpg_home%"
+call %lib_dir%/pretty_print.bat "Subkey length: %subkey_length% bit"
+call %lib_dir%/pretty_print.bat "Yubiset temp dir: %yubiset_temp_dir%"
+call %lib_dir%/pretty_print.bat "gpg: %YUBISET_GPG_BIN%"
+call %lib_dir%/pretty_print.bat "gpg-connect-agent: %YUBISET_GPG_CONNECT_AGENT%"
+call %lib_dir%/pretty_print.bat "gpgconf: %YUBISET_GPG_CONF%"
 
 echo.
 pause
@@ -36,8 +41,6 @@ call %lib_dir%/are_you_sure.bat "Replace files"
 
 if defined answerisno goto gpgagent
 
-echo.
-call %lib_dir%/pretty_print.bat "%USERNAME%'s gpg home dir is: %gpg_home%"
 echo.
 echo Now making backup copies..
 

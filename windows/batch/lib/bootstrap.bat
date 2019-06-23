@@ -8,7 +8,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
 set yubiset_version=0.1.0
 set me=%~1
-set root_folder=%~2..
+set root_folder=%~2..\..
 set error_prefix=ERROR
 set LANG=EN
 set "ifErr=set foundErr=1&(if errorlevel 0 if not errorlevel 1 set foundErr=)&if defined foundErr"
@@ -18,6 +18,9 @@ set "TAB=    "
 set conf_dir=%root_folder%\conf_templates
 set input_dir=%root_folder%\input_files
 set key_backups_dir=%root_folder%\key_backups
+for %%i in (gpg.exe) do set YUBISET_GPG_BIN=%%~$PATH:i
+for %%i in (gpg-connect-agent.exe) do set YUBISET_GPG_CONNECT_AGENT=%%~$PATH:i
+for %%i in (gpgconf.exe) do set YUBISET_GPG_CONF=%%~$PATH:i
 
 if not defined TEMP (
 	echo Could not identify temporary directory to use. Going to create one.
@@ -47,4 +50,4 @@ exit /b 1
 :end
 :: What follows is a trick to get the variables into the context of the calling script (which should be a local context as well) without polluting the global env.
 :: See https://stackoverflow.com/a/16167938
-endlocal&set "yubiset_version=%yubiset_version%"&set "me=%me%"&set "root_folder=%root_folder%"&set "error_prefix=%error_prefix%"&set "LANG=%LANG%"&set "ifErr=%ifErr%"&set "silentDel=%silentDel%"&set "silentCopy=%silentCopy%"&set "TAB=%TAB%"&set "conf_dir=%conf_dir%"&set "input_dir=%input_dir%"&set "key_backups_dir=%key_backups_dir%"&set "yubiset_temp_dir=%yubiset_temp_dir%"&set "gpg_home=%gpg_home%"&set "temp_must_be_removed=%temp_must_be_removed%"
+endlocal&set "yubiset_version=%yubiset_version%"&set "me=%me%"&set "root_folder=%root_folder%"&set "error_prefix=%error_prefix%"&set "LANG=%LANG%"&set "ifErr=%ifErr%"&set "silentDel=%silentDel%"&set "silentCopy=%silentCopy%"&set "TAB=%TAB%"&set "conf_dir=%conf_dir%"&set "input_dir=%input_dir%"&set "key_backups_dir=%key_backups_dir%"&set "yubiset_temp_dir=%yubiset_temp_dir%"&set "gpg_home=%gpg_home%"&set "temp_must_be_removed=%temp_must_be_removed%"&set "YUBISET_GPG_BIN=%YUBISET_GPG_BIN%"&set "YUBISET_GPG_CONNECT_AGENT=%YUBISET_GPG_CONNECT_AGENT%"&set "YUBISET_GPG_CONF=%YUBISET_GPG_CONF%"

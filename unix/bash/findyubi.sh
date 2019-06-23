@@ -5,7 +5,7 @@
 #
 if [[ -z "${lib_dir}" ]] ; then declare -r lib_dir=lib ; fi
 . "${lib_dir}"/bootstrap.sh
-. "${lib_dir}"/helper.sh
+. "${lib_dir}"/lib.sh
 
 cleanup()
 {
@@ -107,7 +107,7 @@ pretty_print "Yubikey smartcard slot find and configuration script"
 pretty_print "Version: ${yubiset_version}"
 
 declare -r conf_backup=scdaemon.conf.orig
-declare -r scdaemon_log="${temp_dir}/scdaemon.log"
+declare -r scdaemon_log="${yubiset_temp_dir}/scdaemon.log"
 
 #
 # GPG AGENT RESTART

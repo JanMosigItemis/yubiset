@@ -12,7 +12,7 @@
 #
 if [[ -z "${lib_dir}" ]] ; then declare -r lib_dir=lib ; fi
 . "${lib_dir}"/bootstrap.sh
-. "${lib_dir}"/helper.sh
+. "${lib_dir}"/lib.sh
 
 cleanup()
 {
@@ -87,7 +87,7 @@ fi
 declare -r given_name="${user_name% *}"
 declare -r sur_name="${user_name##* }"
 declare -r pin_input="${input_dir}/pin.input"
-declare -r pers_info_input="${temp_dir}/pers_info.input"
+declare -r pers_info_input="${yubiset_temp_dir}/pers_info.input"
 declare -r keytocard_input="${input_dir}/keytocard.input"
 
 pretty_print "Yubikey setup and key to card script"

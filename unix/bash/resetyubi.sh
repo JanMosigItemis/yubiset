@@ -5,7 +5,7 @@
 #
 if [[ -z "${lib_dir}" ]] ; then declare -r lib_dir=lib ; fi
 . "${lib_dir}"/bootstrap.sh
-. "${lib_dir}"/helper.sh
+. "${lib_dir}"/lib.sh
 
 cleanup()
 {

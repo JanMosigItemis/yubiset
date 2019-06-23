@@ -2,11 +2,11 @@
 
 declare -r lib_dir=lib
 . "${lib_dir}"/bootstrap.sh
-. "${lib_dir}"/helper.sh
+. "${lib_dir}"/lib.sh
 declare -r yubiset_main_script_runs=true
 
 declare -r keygen_input="${input_dir}"/keygen.input
-declare -r keygen_input_copy="${temp_dir}"/keygen.input.copy
+declare -r keygen_input_copy="${yubiset_temp_dir}"/keygen.input.copy
 if [[ "${1}" -eq "4" ]]; then 
 	declare -r subkey_length=2048
 	declare -r subkeys_input="${input_dir}"/subkeys_2048.input
@@ -22,7 +22,7 @@ pretty_print "Version: ${yubiset_version}"
 pretty_print
 pretty_print "gpg home: ${gpg_home}"
 pretty_print "Subkey length: ${subkey_length} bit"
-pretty_print "Yubiset tmp dir: ${temp_dir}"
+pretty_print "Yubiset tmp dir: ${yubiset_temp_dir}"
 pretty_print "gpg: ${YUBISET_GPG_BIN}"
 pretty_print "gpg-connect-agent: ${YUBISET_GPG_CONNECT_AGENT}"
 pretty_print "gpgconf: ${YUBISET_GPG_CONF}"
@@ -33,7 +33,7 @@ press_any_key
 cleanup()
 {
 	silentDel "${keygen_input_copy}"
-	silentDel "${temp_dir}"
+	silentDel "${yubiset_temp_dir}"
 	echo
 }
 

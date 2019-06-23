@@ -6,7 +6,7 @@ SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 ::
 set lib_dir=lib
 
-call %lib_dir%/setup_script_env.bat "%~n0" "%~dp0"
+call %lib_dir%/bootstrap.bat "%~n0" "%~dp0"
 %ifErr% echo %error_prefix%: Bootstraping the script failed. Exiting. & call :cleanup & goto end_with_error
 
 call %lib_dir%/pretty_print.bat "Yubikey reset script"
