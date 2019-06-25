@@ -1,9 +1,9 @@
 @ECHO OFF
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
-::
-:: Arg 1: String to pretty print
-::
+REM
+REM Arg 1: String to pretty print
+REM
 
 echo .....^| %~1
 

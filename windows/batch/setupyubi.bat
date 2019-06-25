@@ -1,16 +1,16 @@
 @ECHO OFF
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
-::
-:: Arg 1: Full name
-:: Arg 2: email address
-:: Arg 3: PGP key ID
-:: Arg 4: Passphrase
-::
+REM
+REM Arg 1: Full name
+REM Arg 2: email address
+REM Arg 3: PGP key ID
+REM Arg 4: Passphrase
+REM
 
-::
-:: SETUP SECTION
-::
+REM
+REM SETUP SECTION
+REM
 set lib_dir=lib
 
 call %lib_dir%/bootstrap.bat "%~n0" "%~dp0"
@@ -30,22 +30,22 @@ set keytocard_input=%input_dir%\keytocard.input
 
 call :splitAtLastSpace user_name given_name sur_name
 
-::
-:: PIN SECTION
-::
+REM
+REM PIN SECTION
+REM
 echo.
 call %lib_dir%/are_you_sure.bat "Should we first setup your Yubikey's PIN and Admin PIN"
 if defined answerisno goto enterPersonalInfo
 
 echo.
 echo Remember: Default PIN is 123456 ^| Default Admin PIN is 12345678
-type %pin_input% | gpg --command-fd=0 --status-fd=1 --card-edit --expert 2>&1 >nul
+type %pin_input% | gpg --command-fd=0 --status-fd=1 --card-edit --expert >nul 2>&1
 %ifErr% echo %error_prefix%: Setting the PINs ran into an error. Exiting. & call :cleanup & goto end_with_error
 echo PIN setup successfull!
 
-::
-:: PERSONAL INFO SECTION
-::
+REM
+REM PERSONAL INFO SECTION
+REM
 :enterPersonalInfo
 echo.
 call %lib_dir%/are_you_sure.bat "Should personal info be modified"
@@ -77,7 +77,7 @@ echo.
 call %lib_dir%/are_you_sure.bat "Write personal information to your Yubikey"
 if defined answerisno goto keytocard
 echo Now writing..
-type %pers_info_input% | gpg --command-fd=0 --status-fd=1 --card-edit --expert 2>&1 >nul
+type %pers_info_input% | gpg --command-fd=0 --status-fd=1 --card-edit --expert >nul 2>&1
 %ifErr% echo %error_prefix%: Writing personal data to Yubikey ran into an error. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
@@ -86,14 +86,14 @@ echo.
 call %lib_dir%/are_you_sure.bat "Move your subkeys to your Yubikey"
 if defined answerisno call :cleanup & goto end
 echo Now moving keys..
-type %keytocard_input% | gpg --command-fd=0 --status-fd=1 --pinentry-mode loopback --passphrase %passphrase% --edit-key --expert %key_id% 2>&1 >nul
+type %keytocard_input% | gpg --command-fd=0 --status-fd=1 --pinentry-mode loopback --passphrase %passphrase% --edit-key --expert %key_id% >nul 2>&1
 %ifErr% echo %me%: Moving GPG keys to Yubikey ran into an error. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
 call :cleanup
 goto end
 
-:: Function start
+REM Function start
 :splitAtLastSpace
 set pos=-1
 set last_space=0
@@ -108,13 +108,13 @@ set /a last_space+=1
 set /a pos-=1
 set %~3=!%~1:~%last_space%,%pos%!
 exit /b 0
-:: Function end
+REM Function end
 
-:: Function start
+REM Function start
 :cleanup
 if not defined YUBISET_MAIN_SCRIPT_RUNS rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 exit /b 0
-:: Function end
+REM Function end
 
 :end_with_error
 endlocal

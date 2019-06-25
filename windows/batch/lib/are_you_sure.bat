@@ -12,6 +12,6 @@ if /I "!entered_value!" EQU "y" (
 	set "answerisyes="
 	set "answerisno=y"
 )
-:: What follows is a trick to get the variables into the context of the calling script (which should be a local context as well) without polluting the global env.
-:: See https://stackoverflow.com/a/16167938
+REM What follows is a trick to get the variables into the context of the calling script (which should be a local context as well) without polluting the global env.
+REM See https://stackoverflow.com/a/16167938
 endlocal&set "answerisyes=%answerisyes%"&set "answerisno=%answerisno%"
