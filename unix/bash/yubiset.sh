@@ -20,12 +20,13 @@ declare -r revoke_input="${input_dir}"/revoke.input
 pretty_print "OpenPGP key generation and Yubikey setup script"
 pretty_print "Version: ${yubiset_version}"
 pretty_print
-pretty_print "gpg home: ${gpg_home}"
-pretty_print "Subkey length: ${subkey_length} bit"
-pretty_print "Yubiset tmp dir: ${yubiset_temp_dir}"
-pretty_print "gpg: ${YUBISET_GPG_BIN}"
-pretty_print "gpg-connect-agent: ${YUBISET_GPG_CONNECT_AGENT}"
-pretty_print "gpgconf: ${YUBISET_GPG_CONF}"
+pretty_print "gpg home:                ${gpg_home}"
+pretty_print "Subkey length:           ${subkey_length} bit"
+pretty_print "Yubiset tmp dir:         ${yubiset_temp_dir}"
+pretty_print "Yubiset key backups dir: ${key_backups_dir}"
+pretty_print "gpg:                     ${YUBISET_GPG_BIN}"
+pretty_print "gpg-connect-agent:       ${YUBISET_GPG_CONNECT_AGENT}"
+pretty_print "gpgconf:                 ${YUBISET_GPG_CONF}"
 echo
 
 press_any_key

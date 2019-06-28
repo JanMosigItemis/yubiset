@@ -9,10 +9,59 @@ if [[ -z "${lib_dir}" ]] ; then declare -r lib_dir=lib ; fi
 
 cleanup()
 {
+	echo Performing cleanup..
 	silentCopy "${gpg_home}/${conf_backup}" "${gpg_home}/scdaemon.conf"
 	silentDel "${gpg_home}/${conf_backup}"
 	restart_scdaemon
 	remove_tmp_dir_if_standalone
+}
+
+reinsert_yubi_restart_daemons()
+{
+	echo
+	echo Please remove your YubiKey.
+	press_any_key
+	
+	#
+	# GPG AGENT RESTART
+	#
+	echo
+	restart_gpg_agent || { cleanup; end_with_error "Could not restart gpg-agent."; }
+
+	#
+	# SCDAEMON RESTART
+	#
+	echo
+	restart_scdaemon || { cleanup; end_with_error "Could not restart scdaemon."; }
+	
+	echo Please insert your YubiKey.
+	press_any_key
+}
+
+comm_check()
+{
+	#
+	# COMM CHECK
+	#
+	echo "Now checking if we are able to communicate with your Yubikey.."
+	if [[ "${1}" -eq "no_retry" ]] ; then local retry_start=10 ; else local retry_start=1 ; fi
+	
+	for (( i=${retry_start}; i<11; i++ ))
+	do
+		local _result=false
+		# Sometimes, it takes gpg-agent some time to (re)connect to the key.
+		if "${YUBISET_GPG_BIN}" --card-status >/dev/null 2>&1 ; then
+			return 0
+		else
+			if [[ "$i" -eq 10 ]] ; then
+				echo "Comm check ultimately failed."
+				return 1
+			else
+				echo "Attempt $i failed. Retrying.."
+				sleep 1
+			fi
+		fi
+	done
 }
 
 find_slot_heuristic()
@@ -27,6 +76,8 @@ find_slot_heuristic()
 	if [[ -f "${gpg_home}/scdaemon.conf" ]] ; then
 		echo "Now creating backup: ${gpg_home}/${conf_backup}"
 		silentCopy "${gpg_home}/scdaemon.conf" "${gpg_home}/${conf_backup}" || { cleanup; end_with_error "Could not create backup of scdaemon.conf." ; }
+		# A leading empty line is breaking scdaemon<->gpg connection. We do want to put a newline in there only if the file already has contents.
+		if [ -s "${gpg_home}/scdaemon.conf" ] ; then echo >> "${gpg_home}/scdaemon.conf" ; fi
 		echo ..Success!
 	else
 		touch "${gpg_home}/${conf_backup}"
@@ -48,40 +99,27 @@ find_slot_heuristic()
 		scdaemon_log_sanitized="${scdaemon_log_sanitized//\//\\}"
 	fi
 	
-	echo >> "${gpg_home}/scdaemon.conf"
 	echo "#Start: Temporarily added by Yubiset">> "${gpg_home}/scdaemon.conf"
 	echo "log-file ${scdaemon_log_sanitized}">> "${gpg_home}/scdaemon.conf"
 	echo "debug-level guru">> "${gpg_home}/scdaemon.conf"
 	echo "debug-all">> "${gpg_home}/scdaemon.conf"
 	echo "#End: Temporarily added by Yubiset">> "${gpg_home}/scdaemon.conf"
 
-	echo
-	echo Please remove your YubiKey.
-	press_any_key
-	
-	#
-	# GPG AGENT RESTART
-	#
-	echo
-	restart_gpg_agent || { cleanup; end_with_error "Could not restart gpg-agent."; }
-
-	#
-	# SCDAEMON RESTART
-	#
-	echo
-	restart_scdaemon || { cleanup; end_with_error "Could not restart scdaemon."; }
-	
-	echo Please insert your YubiKey.
-	press_any_key
+	reinsert_yubi_restart_daemons
 	
 	echo
 	echo Now generating debug log..
-	"${YUBISET_GPG_BIN}" --card-status > /dev/null 2>&1
+	for i in {1..10}
+	do
+		"${YUBISET_GPG_BIN}" --card-status >/dev/null 2>&1
+		if [[ ! -e "${scdaemon_log}" ]] ; then echo "Waiting for log to be finished (Attempt: $i)"; sleep 1; fi
+	done
 	echo ..Done!
 
 	#
 	# PROCESS DEBUG LOG
 	#
+	echo Processing debug log..
 	readarray -t reader_port_candidates <<< $( { cat ${scdaemon_log} | grep "detected" | cut -d "'" -f2 ; } || { cleanup; end_with_error "Could not parse scdaemon log." ; } )
 	for reader_port_candidate in "${reader_port_candidates[@]}"
 	do
@@ -97,10 +135,13 @@ find_slot_heuristic()
 	if [[ -z "${reader_port}" ]] ; then { end_with_error "Could not find any viable readers." ; } fi
 	
 	echo Writing scdaemon.conf..
-	echo >> "${gpg_home}/scdaemon.conf"
+	# A leading empty line is breaking scdaemon<->gpg connection. We do want to put a newline in there only if the file already has contents.
+	if [ -s "${gpg_home}/scdaemon.conf" ] ; then echo >> "${gpg_home}/scdaemon.conf" ; fi
 	echo "#Added by yubiset:" >> "${gpg_home}/scdaemon.conf"
 	echo "reader-port ${reader_port}" >> "${gpg_home}/scdaemon.conf"
 	echo ..Success!
+	
+	reinsert_yubi_restart_daemons
 }
 
 pretty_print "Yubikey smartcard slot find and configuration script"
@@ -109,34 +150,13 @@ pretty_print "Version: ${yubiset_version}"
 declare -r conf_backup=scdaemon.conf.orig
 declare -r scdaemon_log="${yubiset_temp_dir}/scdaemon.log"
 
-#
-# GPG AGENT RESTART
-#
-echo
-restart_gpg_agent || { cleanup; end_with_error "Could not restart gpg-agent."; }
+reinsert_yubi_restart_daemons
 
-#
-# SCDAEMON RESTART
-#
-echo
-restart_scdaemon || { cleanup; end_with_error "Could not restart scdaemon."; }
-
-#
-# COMM CHECK
-#
-reinsert_yubi
-
-echo "Now checking if we are able to communicate with your Yubikey.."
-{ "${YUBISET_GPG_BIN}" --card-status > /dev/null 2>&1 ; } || {
+{ comm_check no_retry ; } || {
 	echo "..Failed :("
 	if $(are_you_sure "This is most likely because your GPG does not know which card reader to use. Should we try setting things up for you") ; then 
 		find_slot_heuristic
-		#
-		# COMM CHECK
-		#
-		reinsert_yubi
-		echo "Now checking if we are able to communicate with your Yubikey.."
-		{ "${YUBISET_GPG_BIN}" --card-status > /dev/null 2>&1 ; } || { cleanup; end_with_error "Sorry, setting up your Yubikey did not work." ; }
+		comm_check
 		echo ..Success!
 	else
 		cleanup
@@ -144,5 +164,5 @@ echo "Now checking if we are able to communicate with your Yubikey.."
 	fi
 }
 
-echo All done. Performing cleanup..
+echo All done.
 cleanup
