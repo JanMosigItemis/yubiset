@@ -15,7 +15,6 @@ call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 set conf_backup=scdaemon.conf.orig
 set scdaemon_log=%yubiset_temp_dir%\scdaemon.log
 set gpg_card_status_log=%yubiset_temp_dir%\gpg_card_status.log
-for /f "usebackq" %%a in ('%gpg_home%\scdaemon.conf') do set scdaemon_conf_file_size=%%~za
 
 REM
 REM GPG AGENT RESTART
@@ -61,12 +60,15 @@ if exist %gpg_home%\scdaemon.conf (
 	%silentCopy% %gpg_home%\scdaemon.conf %gpg_home%\%conf_backup%
 	%ifErr% echo %error_prefix%: Could not create backup of scdaemon.conf. Exiting. & call :cleanup & goto end_with_error
 
+	for /f "usebackq" %%a in ('%gpg_home%\scdaemon.conf') do set scdaemon_conf_file_size=%%~za
 	REM A leading empty line is breaking scdaemon<->gpg connection. We do want to put a newline in there only if the file already has contents.
 	REM GTR - Greater than
-	if %scdaemon_conf_file_size% GTR 0 echo.>>%gpg_home%\scdaemon.conf
+	echo !scdaemon_conf_file_size!
+	if !scdaemon_conf_file_size! GTR 0 echo.>>%gpg_home%\scdaemon.conf
 	
 	echo ..Success!
 ) else (
+	set scdaemon_conf_file_size=0
 	REM Creates a new empty file
 	%silentCopy% NUL %gpg_home%\%conf_backup%
 )
@@ -106,6 +108,7 @@ echo ..Done!
 REM
 REM PROCESS DEBUG LOG
 REM
+echo Processing debug log..
 set array_index=0
 for /f "tokens=2 delims=^'" %%i in ('type %scdaemon_log% ^| findstr /C:"detected reader"') do (
 	set reader_port_candidate=%%i
