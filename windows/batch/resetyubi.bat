@@ -23,7 +23,12 @@ echo ..Success!
 echo.
 call %lib_dir%/pretty_print.bat "PIN: 123456"
 call %lib_dir%/pretty_print.bat "Admin PIN: 12345678"
-call %lib_dir%/reinsert_yubi.bat
+
+echo.
+echo Please remove your Yubikey
+pause
+echo Please insert your Yubikey
+pause
 
 call :cleanup
 goto end

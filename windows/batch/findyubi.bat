@@ -14,29 +14,10 @@ call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
 set conf_backup=scdaemon.conf.orig
 set scdaemon_log=%yubiset_temp_dir%\scdaemon.log
-set gpg_card_status_log=%yubiset_temp_dir%\gpg_card_status.log
 
-REM
-REM GPG AGENT RESTART
-REM
-echo.
-call %lib_dir%/restart_gpg_agent.bat
-%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. & call :cleanup & goto end_with_error
+call :reinsert_yubi_and_restart_daemons
 
-REM
-REM SCDAEMON RESTART
-REM
-echo.
-call %lib_dir%/restart_scdaemon.bat
-%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
-
-REM
-REM COMM CHECK
-REM
-call %lib_dir%/reinsert_yubi.bat
-
-echo Now checking if we are able to communicate with your Yubikey..
-gpg --card-status > nul 2>&1
+call :comm_check no_retry
 %ifErr% (
 	echo "..Failed :("
 	call %lib_dir%/are_you_sure.bat "This is most likely because your GPG does not know which card reader to use. Should we try setting things up for you"
@@ -63,7 +44,6 @@ if exist %gpg_home%\scdaemon.conf (
 	for /f "usebackq" %%a in ('%gpg_home%\scdaemon.conf') do set scdaemon_conf_file_size=%%~za
 	REM A leading empty line is breaking scdaemon<->gpg connection. We do want to put a newline in there only if the file already has contents.
 	REM GTR - Greater than
-	echo !scdaemon_conf_file_size!
 	if !scdaemon_conf_file_size! GTR 0 echo.>>%gpg_home%\scdaemon.conf
 	
 	echo ..Success!
@@ -80,30 +60,27 @@ echo debug-all>> %gpg_home%\scdaemon.conf
 echo card-timeout 30>>%gpg_home%\scdaemon.conf
 echo ^#End: Temporarily added by Yubiset>> %gpg_home%\scdaemon.conf
 
-echo.
-echo Please remove your YubiKey.
-pause
-
-REM
-REM GPG AGENT RESTART
-REM
-echo.
-call %lib_dir%/restart_gpg_agent.bat
-%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. & call :cleanup & goto end_with_error
-
-REM
-REM SCDAEMON RESTART
-REM
-echo.
-call %lib_dir%/restart_scdaemon.bat
-%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
-
-echo Please insert your YubiKey.
-pause
+call :reinsert_yubi_and_restart_daemons
 
 echo Now generating debug log..
-gpg --card-status >%gpg_card_status_log% 2>&1
+REM The debug log may need some time to be flushed.
+set _debug_log_retry_counter=1
+:debug_log_retry_loop
+gpg --card-status >nul 2>&1
+if not exist "%scdaemon_log%" (
+	if !_debug_log_retry_counter! EQU 10 (
+		echo %error_prefix%: Ultimately failed to generate %scdaemon_log%.
+		call :cleanup
+		goto end_with_error
+	) else (
+		echo Waiting for log to be finished ^(Attempt: !_debug_log_retry_counter!^)
+		timeout 1 >nul 2>&1
+		set /a _debug_log_retry_counter+=1
+		goto debug_log_retry_loop
+	)
+)
 echo ..Done!
+call :cleanup
 
 REM
 REM PROCESS DEBUG LOG
@@ -126,17 +103,9 @@ for /f "tokens=2 delims==" %%i in ('set reader_port_candidates[') do (
 )
 
 echo Could not find any viable readers.
-call :cleanup
 goto end_with_error
 
 :addReaderToConf
-REM
-REM DEACTIVATE SCDAEMON DEBUG MODE
-REM
-echo.
-echo Now switching off debug mode..
-call :cleanup
-
 echo Writing scdaemon.conf..
 
 REM A leading empty line is breaking scdaemon<->gpg connection. We do want to put a newline in there only if the file already has contents.
@@ -146,18 +115,13 @@ echo ^#Added by yubiset:>> %gpg_home%\scdaemon.conf
 echo reader-port "%reader_port_candidate%">> %gpg_home%\scdaemon.conf
 call %lib_dir%/restart_scdaemon.bat
 %ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
-echo.
-REM
-REM COMM CHECK
-REM
-call %lib_dir%/reinsert_yubi.bat
 
-echo Now checking if we are able to communicate with your Yubikey..
-gpg --card-status > nul 2>&1
+call :reinsert_yubi_and_restart_daemons
+call :comm_check
 %ifErr% echo Sorry, setting up your Yubikey did not work. Exiting. & call :cleanup & goto end_with_error
 echo ..Success!
 
-call :cleanup
+call :cleanup no_conf_rollback
 goto end
 
 REM Function start
@@ -175,11 +139,66 @@ REM Function end
 
 REM Function start
 :cleanup
-%silentCopy% %gpg_home%\%conf_backup% %gpg_home%\scdaemon.conf /Y
+echo Performing cleanup..
+if [%1]==[] (
+	%silentCopy% %gpg_home%\%conf_backup% %gpg_home%\scdaemon.conf
+)
 %silentDel% %gpg_home%\%conf_backup%
 if not defined YUBISET_MAIN_SCRIPT_RUNS rd >nul 2>&1 /S /Q !yubiset_temp_dir!
 call %lib_dir%/restart_scdaemon.bat
 %ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & goto end_with_error
+exit /b 0
+REM Function end
+
+REM Function start
+:reinsert_yubi_and_restart_daemons
+echo.
+echo Please remove your Yubikey
+pause
+
+REM
+REM GPG AGENT RESTART
+REM
+echo.
+call %lib_dir%/restart_gpg_agent.bat
+%ifErr% echo %error_prefix%: Could not restart gpg-agent. Exiting. & call :cleanup & goto end_with_error
+
+REM
+REM SCDAEMON RESTART
+REM
+echo.
+call %lib_dir%/restart_scdaemon.bat
+%ifErr% echo %error_prefix%: Could not restart scdaemon. Exiting. & call :cleanup & goto end_with_error
+
+echo Please insert your Yubikey
+pause
+
+exit /b 0
+REM Function end
+
+REM Function start
+:comm_check
+echo.
+echo Now checking if we are able to communicate with your Yubikey..
+if [%1]==[] (
+	set _comm_check_loop_count=1
+) else (
+	set _comm_check_loop_count=10
+)
+
+:comm_check_loop
+gpg --card-status >nul 2>&1
+%ifErr% (
+	if !_comm_check_loop_count! EQU 10 (
+		echo Comm check ultimately failed.
+		exit /b 1
+	) else (
+		echo Attempt !_comm_check_loop_count! failed. Retrying.. & set /a _comm_check_loop_count+=1 & timeout 1 >nul 2>&1
+		goto comm_check_loop
+	)
+) else (
+	exit /b 0
+)
 exit /b 0
 REM Function end
 

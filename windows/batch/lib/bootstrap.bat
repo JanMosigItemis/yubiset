@@ -6,7 +6,7 @@ REM Arg 1: Full path to caller script
 REM Arg 2: Full path to yubiset windows script folder
 REM
 
-set yubiset_version=0.2.0
+set yubiset_version=0.2.1
 set me=%~1
 set root_folder=%~2..\..
 set error_prefix=ERROR
@@ -30,6 +30,7 @@ if not defined TEMP (
 
 if not defined YUBISET_MAIN_SCRIPT_RUNS (
 	rd /S /Q !yubiset_temp_dir! >nul 2>&1
+	%ifErr% echo %error_prefix%: Found old temp dir but could not remove it. Exiting. && goto end_with_error
 	mkdir !yubiset_temp_dir!
 	%ifErr% echo %error_prefix%: Could not create temp directory. Exiting. && goto end_with_error
 )

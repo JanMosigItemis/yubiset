@@ -10,7 +10,7 @@ if [[ -z "${lib_dir}" ]] ; then declare -r lib_dir=lib ; fi
 cleanup()
 {
 	echo Performing cleanup..
-	silentCopy "${gpg_home}/${conf_backup}" "${gpg_home}/scdaemon.conf"
+	if [[ "${1}" -eq "no_conf_rollback" ]] ; then silentCopy "${gpg_home}/${conf_backup}" "${gpg_home}/scdaemon.conf" ; fi
 	silentDel "${gpg_home}/${conf_backup}"
 	restart_scdaemon
 	remove_tmp_dir_if_standalone
@@ -109,10 +109,18 @@ find_slot_heuristic()
 	
 	echo
 	echo Now generating debug log..
+	# The debug log may need some time to be flushed.
 	for i in {1..10}
 	do
 		"${YUBISET_GPG_BIN}" --card-status >/dev/null 2>&1
-		if [[ ! -e "${scdaemon_log}" ]] ; then echo "Waiting for log to be finished (Attempt: $i)"; sleep 1; fi
+		if [[ ! -e "${scdaemon_log}" ]] ; then 
+			if [[ "${i}" -eq 10 ]] ; then
+				cleanup
+				end_with_error "Ultimately failed to generate ${scdaemon_log}."
+			else
+				echo "Waiting for log to be finished (Attempt: $i)"; sleep 1
+			fi
+		fi
 	done
 	echo ..Done!
 
@@ -138,7 +146,7 @@ find_slot_heuristic()
 	# A leading empty line is breaking scdaemon<->gpg connection. We do want to put a newline in there only if the file already has contents.
 	if [ -s "${gpg_home}/scdaemon.conf" ] ; then echo >> "${gpg_home}/scdaemon.conf" ; fi
 	echo "#Added by yubiset:" >> "${gpg_home}/scdaemon.conf"
-	echo "reader-port ${reader_port}" >> "${gpg_home}/scdaemon.conf"
+	echo "reader-port \"${reader_port}\"" >> "${gpg_home}/scdaemon.conf"
 	echo ..Success!
 	
 	reinsert_yubi_restart_daemons
@@ -165,4 +173,4 @@ reinsert_yubi_restart_daemons
 }
 
 echo All done.
-cleanup
+cleanup no_conf_rollback
