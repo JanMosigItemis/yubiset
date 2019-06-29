@@ -5,7 +5,7 @@ REM
 REM Arg 1: Full name
 REM Arg 2: email address
 REM Arg 3: PGP key ID
-REM Arg 4: Passphrase
+REM Optional Arg 4: Passphrase (will be asked for if omitted)
 REM
 
 REM
@@ -19,10 +19,24 @@ call %lib_dir%/bootstrap.bat "%~n0" "%~dp0"
 call %lib_dir%/pretty_print.bat "Yubikey setup and key to card script"
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 
+if [%1] == [] echo %error_prefix%: Missing arg 1: Full name. & call :cleanup & goto end_with_error
+if [%2] == [] echo %error_prefix%: Missing arg 2: EMail address. & call :cleanup & goto end_with_error
+if [%3] == [] echo %error_prefix%: Missing arg 3: PGP key ID. & call :cleanup & goto end_with_error
 set user_name=%~1
 set user_email=%~2
 set key_id=%~3
-set passphrase=%~4
+
+if [%4] == [] (
+	if defined powershell_available (
+		call %lib_dir%\mask_user_input.bat "Please enter your passphrase"
+		%ifErr% echo %error_prefix%: Could not acquire passphrase from user. & call :cleanup & goto end_with_error
+		set passphrase=!masked_user_input!
+	) else (
+		set /p passphrase=Please enter your passphrase: 
+	)
+) else (
+	set passphrase=%~4
+)
 
 set pin_input=%input_dir%\pin.input
 set pers_info_input=!yubiset_temp_dir!\pers_info.input

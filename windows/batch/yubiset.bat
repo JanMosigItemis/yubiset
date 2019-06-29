@@ -21,6 +21,9 @@ if "%~1" == "4" (
 	set subkey_length=2048
 )
 
+call %lib_dir%/check_powershell_availability.bat
+%ifErr% echo %error_prefix%: Could not find out if Powershell is available or not. & call :cleanup & goto end_with_error
+
 call %lib_dir%/pretty_print.bat "OpenPGP key generation and Yubikey setup script"
 call %lib_dir%/pretty_print.bat "Version: %yubiset_version%"
 call %lib_dir%/pretty_print.bat ""
@@ -31,9 +34,10 @@ call %lib_dir%/pretty_print.bat "Yubiset key backups dir: %key_backups_dir%"
 call %lib_dir%/pretty_print.bat "gpg:                     %YUBISET_GPG_BIN%"
 call %lib_dir%/pretty_print.bat "gpg-connect-agent:       %YUBISET_GPG_CONNECT_AGENT%"
 call %lib_dir%/pretty_print.bat "gpgconf:                 %YUBISET_GPG_CONF%"
-
+call %lib_dir%/pretty_print.bat "Powershell (optional):   %powershell_version%"
 echo.
 pause
+
 REM
 REM GPG CONF SECTION
 REM
@@ -80,9 +84,15 @@ echo.
 echo First, we need a little information from you.
 set /p user_name=Please enter your full name: 
 set /p user_email=Please enter your full e-mail address: 
-set /p passphrase=Please enter your passphrase: 
+if defined powershell_available (
+	call %lib_dir%\mask_user_input.bat "Please enter your passphrase"
+	%ifErr% echo %error_prefix%: Could not acquire passphrase from user. & call :cleanup & goto end_with_error
+	set passphrase=!masked_user_input!
+) else (
+	set /p passphrase=Please enter your passphrase: 
+)
 
-copy %keygen_input% %keygen_input_copy%
+%silentCopy% %keygen_input% %keygen_input_copy%
 echo %user_name% (itemis AG)>> %keygen_input_copy%
 echo %user_email%>> %keygen_input_copy%
 echo Vocational OpenPGP key of itemis AG's %user_name%>> %keygen_input_copy%
