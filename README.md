@@ -6,9 +6,12 @@ It generates ["the perfect key pair"](https://blog.eleven-labs.com/en/openpgp-al
 
 The Yubikey is also provided with user info and PIN setup.
 
-The scripts do also feature a heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.
+The scripts do also feature a fully automatic heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.
 
+- [YUBISET](#yubiset)
+- [What does it do?](#what-does-it-do)
 - [Supported Environments](#supported-environments)
+- [Supported Yubikeys](#supported-yubikeys)
 - [Prerequisites](#prerequisites)
   * [Windows](#windows)
   * [Linux](#linux)
@@ -20,29 +23,37 @@ The scripts do also feature a heuristic for finding and setting up the correct (
       - [Move PGP keys to Yubikey only](#move-pgp-keys-to-yubikey-only)
       - [Reset Yubikey's OpenPGP module](#reset-yubikeys-openpgp-module)
       - [Find Yubikey Slot](#find-yubikey-slot)
+    + [Key Branding](#key-branding)
   * [Unix](#unix)
     + [Start here: Key generation & Yubikey setup (all in one script)](#start-here-key-generation--yubikey-setup-all-in-one-script-1)
       - [Move PGP keys to Yubikey only](#move-pgp-keys-to-yubikey-only-1)
       - [Reset Yubikey's OpenPGP module](#reset-yubikeys-openpgp-module-1)
       - [Find Yubikey Slot](#find-yubikey-slot-1)
+    + [Key Branding](#key-branding-1)
     + [Override GPG Binaries](#override-gpg-binaries)
 - [For Developers](#for-developers)
   * [Clone with git](#clone-with-git)
   * [Windows Batch File Line Endings](#windows-batch-file-line-endings)
   * [Flush issues](#flush-issues)
-
+  * [README.md Table of Contents](#readmemd-table-of-contents)
 
 # Supported Environments
 * Windows (Batch)
 * Windows ([git-bash](https://gitforwindows.org))
 * Unix (Bash)
 
+# Supported Yubikeys
+* Yubikey NEO
+* Yubikey 4
+* Yubikey 5
+
 # Prerequisites  
 The only thing you'll need is a working gpg installation:
 
 ## Windows  
 * [gpg4win](https://www.gpg4win.org)
-* Optionally [git-bash](https://gitforwindows.org)
+* (optional) [git-bash](https://gitforwindows.org)
+* (optional) Powershell
 
 ## Linux  
 Use the *GnuPG* package provided with your distribution or follow the instructions on [https://gnupg.org](https://gnupg.org).
@@ -64,12 +75,16 @@ yubiset.bat
 ```
 In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `yubiset.bat 4` instead.
 
+The main script will use Powershell if it is available in order to hide the passphrase input prompt. This is a measure to increase security. If Powershell is not available the passphrase entered will be visible to eavesdroppers.
+
 The following scripts may be used standalone but are also called from the `yubiset` main script:
 #### Move PGP keys to Yubikey only
 ```
 cd windows\batch
 setupyubi.bat "Given Name Surname" "my.email@provider.com" "PGP key id" "passphrase"
 ```
+
+If ```passphrase``` is omitted, it will be prompted for. The prompt will be hidden if Powershell is available. Otherwise it will be a plain visible prompt that may be eavesdropped.
 
 #### Reset Yubikey's OpenPGP module
 **BE AWARE:** Only tested with Yubikey 4 NEO and Yubikey 5
@@ -82,6 +97,40 @@ resetyubi.bat
 ```
 cd windows/batch
 findyubi.bat
+```
+
+### Key Branding  
+It is possible to "brand" your generated keys, i. e. give the user name and the comment a custom touch e. g. for your company. This can be controlled by editing the file `windows/batch/lib/branding.bat`.
+
+The default will produce a key like this:
+
+```
+sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
+      Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
+uid                   [ultimate] Max Muster <max.muster@host.de>
+```
+
+However a `branding.bat` like this:
+```
+@ECHO OFF
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+
+REM
+REM Arg 1: User name
+REM
+
+set branded_user_name=%~1 (itemis AG)
+set branded_user_comment=Vocational key of itemis AG's Max Muster
+
+REM What follows is a trick to get the variables into the context of the calling script (which should be a local context as well) without polluting the global env.
+REM See https://stackoverflow.com/a/16167938
+endlocal&set "branded_user_name=%branded_user_name%"&set "branded_user_comment=%branded_user_comment%"
+```
+will produce the following key:
+```
+sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
+      Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
+uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key of itemis AG's Max Muster) <max.muster@host.de>
 ```
 
 ## Unix
@@ -112,6 +161,29 @@ sh resetyubi.sh
 ```
 cd unix/bash
 sh findyubi.sh
+```
+
+### Key Branding  
+It is possible to "brand" your generated keys, i. e. give the user name and the comment a custom touch e. g. for your company. This can be controlled by editing the file `unix/bash/lib/branding.sh`.
+
+The default will produce a key like this:
+
+```
+sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
+      Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
+uid                   [ultimate] Max Muster <max.muster@host.de>
+```
+
+However a `branding.sh` like this:
+```
+declare -r branded_user_name="${user_name} (itemis AG)"
+declare -r branded_user_comment="Vocational key of itemis AG's Max Muster"
+```
+will produce the following key:
+```
+sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
+      Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
+uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key of itemis AG's Max Muster) <max.muster@host.de>
 ```
 
 ### Override GPG Binaries

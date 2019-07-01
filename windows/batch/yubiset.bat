@@ -92,10 +92,17 @@ if defined powershell_available (
 	set /p passphrase=Please enter your passphrase: 
 )
 
+call %lib_dir%/branding.bat "%user_name%"
+%ifErr% echo %error_prefix%: Could not load key branding information. & call :cleanup & goto end_with_error
+
 %silentCopy% %keygen_input% %keygen_input_copy%
-echo %user_name% (itemis AG)>> %keygen_input_copy%
+echo %branded_user_name%>> %keygen_input_copy%
 echo %user_email%>> %keygen_input_copy%
-echo Vocational OpenPGP key of itemis AG's %user_name%>> %keygen_input_copy%
+if defined branded_user_comment (
+	echo %branded_user_comment%>> %keygen_input_copy%
+) else (
+	echo.>> %keygen_input_copy%
+)
 
 REM Master key generation
 echo.

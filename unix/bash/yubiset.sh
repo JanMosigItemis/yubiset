@@ -3,6 +3,7 @@
 declare -r lib_dir=lib
 . "${lib_dir}"/bootstrap.sh
 . "${lib_dir}"/lib.sh
+# Always make sure that this is declared after bootstrap.sh is sourced in order to make sure, temp dir handling is done correctly.
 declare -r yubiset_main_script_runs=true
 
 declare -r keygen_input="${input_dir}"/keygen.input
@@ -93,10 +94,11 @@ read -p "Please enter your full name: " user_name
 read -p "Please enter your full e-mail address: " user_email
 read -s -p "Please enter your passphrase: " passphrase
 
+. "${lib_dir}"/branding.sh
 silentCopy "${keygen_input}" "${keygen_input_copy}"
-echo "${user_name} (itemis AG)" >> "${keygen_input_copy}"
+echo "${branded_user_name}" >> "${keygen_input_copy}"
 echo "${user_email}" >> "${keygen_input_copy}"
-echo "Vocational OpenPGP key of itemis AG's ${user_name}" >> "${keygen_input_copy}"
+echo "${branded_user_comment}" >> "${keygen_input_copy}"
 
 # Master key generation
 echo
