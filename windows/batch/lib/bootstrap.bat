@@ -6,7 +6,7 @@ REM Arg 1: Full path to caller script
 REM Arg 2: Full path to yubiset windows script folder
 REM
 
-set yubiset_version=0.4.1
+set yubiset_version=0.4.1.itemis
 set me=%~1
 set root_folder=%~2..\..
 set error_prefix=ERROR
