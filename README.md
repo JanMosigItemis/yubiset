@@ -1,5 +1,5 @@
-# YUBISET  
-A collection of scripts to make OpenPGP key generation and YubiKey manipulation easy. Key generation and gpg setup things are inspired by [the perfect key pair](https://blog.eleven-labs.com/en/openpgp-almost-perfect-key-pair-part-1).
+# YUBISET - Branded for itemis AG
+A collection of scripts to make OpenPGP key generation and YubiKey manipulation easy. Contains customized branding for [itemis AG](https://www.itemis.de). Key generation and gpg setup things are inspired by [the perfect key pair](https://blog.eleven-labs.com/en/openpgp-almost-perfect-key-pair-part-1).
 
 # What does it do?
 It generates ["the perfect key pair"](https://blog.eleven-labs.com/en/openpgp-almost-perfect-key-pair-part-1), puts in some reasonable values for account / user id information and optionally transfers keys to a [Yubikey](www.yubico.com) device.
