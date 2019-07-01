@@ -75,7 +75,7 @@ yubiset.bat
 ```
 In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `yubiset.bat 4` instead.
 
-The main script will use Powershell if it is available in order to hide the passphrase input prompt. This is a measure to increase security. If Powershell is not available the passphrase entered will be visible to eavesdroppers.
+The main script will use Powershell if it is available in order to hide the passphrase input prompt. This is a measure to prevent eavesdropping. If Powershell is not available the passphrase entered will be visible to eavesdroppers. The check for Powershell and its usage are a bit slow, i. e. script loading time is increased. This is normal and not a bug.
 
 The following scripts may be used standalone but are also called from the `yubiset` main script:
 #### Move PGP keys to Yubikey only
