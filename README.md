@@ -17,6 +17,7 @@ The scripts do also feature a fully automatic heuristic for finding and setting 
   * [Linux](#linux)
   * [Mac](#mac)
 - [Download](#download)
+  * [Verifying The Download](#verifying-the-download)
 - [Usage](#usage)
   * [Windows](#windows-1)
     + [Start here: Key generation & Yubikey setup (all in one script)](#start-here-key-generation--yubikey-setup-all-in-one-script)
@@ -63,6 +64,35 @@ Use the *GnuPG* package provided with your distribution or follow the instructio
 
 # Download
 [https://github.com/JanMosigItemis/yubiset/releases](https://github.com/JanMosigItemis/yubiset/releases)
+
+## Verifying The Download  
+Every release comes as a zip file of the form `yubiset_[TAG].[TIMESTAMP].zip`. 
+
+The file is accompanied by the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) hash code of the zip stored into `[ZIP_FILE_NAME].sha512`. You may verify the hash code of your download like this:
+```
+# This makes sure, you downloaded an exact copy of the release from GitHub.
+sha512sum -c yubiset_vt.t.t.test.201907042021.sha512
+yubiset_vt.t.t.test.201907042021.zip: OK # This is the supposed output.
+
+```
+
+There is a third file called `[ZIP_FILE_NAME].sha512.gpg`. This can be used to verify that the hash code has not been tempered with. The verification is done via [GPG](https://en.wikipedia.org/wiki/GNU_Privacy_Guard) like this:
+```
+gpg --verify yubiset_vt.t.t.test.201907042021.sha512.gpg
+gpg: Signature made 07/04/19 20:21:11 W. Europe Daylight Time
+gpg:                using RSA key 0xE9EC6651133A788F
+gpg: Good signature from "Jan Mosig itemis GitHub Signing Key (Signing key for GitHub release artifacts of JanMosigItemis) <ja
+n.mosig@itemis.de>" [ultimate]
+Primary key fingerprint: DFC5 B2E2 74B5 A83E DC56  2A48 3622 572E E5F1 E2D4
+     Subkey fingerprint: BE63 6888 FDA6 4B7C E7F7  1BF7 E9EC 6651 133A 788F
+```
+
+If you perform both steps, there is a very high chance that your download is legit.
+
+In case you are missing my public GitHub signing key, you can download it here: https://gist.github.com/JanMosigItemis/ce1ffd36a4ab860962009f7a9a6ff2ec. Unzip the file and import the key like this:
+```
+gpg --import JanMosigItemisGitHub.asc
+```
 
 # Usage
 
