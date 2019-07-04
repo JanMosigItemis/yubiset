@@ -1,0 +1,44 @@
+if: NOT tag IS blank
+
+language: minimal
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+
+# Super secret password to decrypt the private signing key
+env:
+  global:
+    secure: "Apnk0bYrrgzhwWe7EsaM/3snaXf9GA3wAsGFnZ5lMhxUVulY3QVYbhRYkfbtDNezS1ejeatmivfwROjdwU/dRwiTFKlthqQOn2mWVZyPzYCRckmlT3pDg3/JCQtvyewKLCTqqMpvBx1CYJ5n4NBSGK7Msxw/ex9XwdR5ZMqR3TPu2QDjHFkmTCow4LkM34XkoYvkOTuxk8qTrGABNA4OPW8lci1vdQSegxIK2mKT/C/q9hvUrLPowEdn+b6/kV9USLBUourl7frmCpz3lfjn8k415qWfXNAPArszu1B8KoX68KiijOZWir5b4T7LrFeQ1WPOsgpW24xVB7hfC8J5CkE8qUwIJLqIunIsNn1dsBHO/NYGj1G5hbHMgrVRPkjxQSfjzMBt+ajYNaQZhresj/fZNCBnZJZNjgCfgWz7LGlgejFtElIn7pLR5PgZWQf9N38OanGGn1VhoPbYN1M0nYlfIv/QZTpCC0e4DPcNgVq5etaNjaQ8nC0+NA/z67hXb7Y5D9ulMuoKXeTS04TeuPSeeVio2vl/pGL7ZghdSTAoQAZbpXgzR0PygJh4Y+3E1bDK/d0Y0HR19lUadohPbdM1IiPHAReim0lft6TcJaO6dM7dY9SLFt0fkWQSSJ9teBb7lWJakFVqnNr70UdCWZ6i/F5VklecjeTCXJ0szhw="
+
+# Skip installation phase
+install: true
+
+before_script:
+    - . ./.ci/before_script.sh
+
+script: 
+    - . ./.ci/script.sh
+
+# skip-cleanup: true -> Prevent deletion of created artifacts after install and before deployment
+deploy:
+  - provider: releases
+    api_key:
+      secure: $GITHUB_API_KEY
+    file:
+    - $release_zip
+    - $release_hash
+    - $release_gpg
+    skip-cleanup: true
+    overwrite: true
+    draft: false
+    prerelease: true
+    on:
+     repo: JanMosigItemis/yubiset
+     tags: true
