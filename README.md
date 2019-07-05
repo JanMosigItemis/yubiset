@@ -72,7 +72,7 @@ The file is accompanied by the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) ha
 ```
 # This makes sure, you downloaded an exact copy of the release from GitHub.
 sha512sum -c yubiset_vt.t.t.test.201907042021.sha512
-yubiset_vt.t.t.test.201907042021.zip: OK # This is the supposed output.
+yubiset_vt.t.t.test.201907042021.zip: OK # This is the expected output.
 
 ```
 
