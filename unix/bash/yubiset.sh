@@ -93,15 +93,19 @@ echo "First, we need a little information from you."
 read -p "Please enter your full name: " user_name
 read -p "Please enter your full e-mail address: " user_email
 read -s -p "Please enter your passphrase: " passphrase
+echo
 
 . "${lib_dir}"/branding.sh
 silentCopy "${keygen_input}" "${keygen_input_copy}"
 echo "${branded_user_name}" >> "${keygen_input_copy}"
 echo "${user_email}" >> "${keygen_input_copy}"
-echo "${branded_user_comment}" >> "${keygen_input_copy}"
+
+# Some characters are not supported in key comments. See https://github.com/JanMosigItemis/yubiset/issues/4
+declare -r sanitized_user_comment=$( echo "${branded_user_comment}" | sed -r 's/[\(\)]+//g' )
+if [[ ! -z "${sanitized_user_comment}" ]]; then echo "Found custom user comment branding: ${sanitized_user_comment}" ; fi
+echo "${sanitized_user_comment}" >> "${keygen_input_copy}"
 
 # Master key generation
-echo
 echo "Now generating the master key. This may take a while.."
 { cat "${keygen_input_copy}" | "${YUBISET_GPG_BIN}" --command-fd=0 --status-fd=1 --expert --full-gen-key --pinentry-mode loopback --passphrase "${passphrase}" ; } || { cleanup; end_with_error "Generating the keypair raised an error." ; }
 echo ..Success!
