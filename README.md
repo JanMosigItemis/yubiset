@@ -6,7 +6,9 @@ It generates ["the perfect key pair"](https://blog.eleven-labs.com/en/openpgp-al
 
 The Yubikey is also provided with user info and PIN setup.
 
-The scripts do also feature a fully automatic heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.
+The scripts do also feature a fully automatic heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.  
+
+*Remember:* On most installations, scripts may be interrupted by pressing Ctrl+C.  
 
 - [YUBISET](#yubiset)
 - [What does it do?](#what-does-it-do)
@@ -39,7 +41,7 @@ The scripts do also feature a fully automatic heuristic for finding and setting 
   * [README.md Table of Contents](#readmemd-table-of-contents)
 
 # Supported Environments
-* Windows (Batch)
+* Windows (CMD)
 * Windows ([git-bash](https://gitforwindows.org))
 * Unix (Bash)
 
@@ -72,7 +74,7 @@ The file is accompanied by the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) ha
 ```
 # This makes sure, you downloaded an exact copy of the release from GitHub.
 sha512sum -c yubiset_vt.t.t.test.201907042021.sha512
-yubiset_vt.t.t.test.201907042021.zip: OK # This is the expected output.
+yubiset_vt.t.t.test.201907042021.zip: OK # This is the supposed output.
 
 ```
 
@@ -100,7 +102,7 @@ gpg --import JanMosigItemisGitHub.asc
 
 ### Start here: Key generation & Yubikey setup (all in one script)
 ```
-cd windows\batch
+cd windows\cmd
 yubiset.bat
 ```
 In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `yubiset.bat 4` instead.
@@ -110,7 +112,7 @@ The main script will use Powershell if it is available in order to hide the pass
 The following scripts may be used standalone but are also called from the `yubiset` main script:
 #### Move PGP keys to Yubikey only
 ```
-cd windows\batch
+cd windows\cmd
 setupyubi.bat "Given Name Surname" "my.email@provider.com" "PGP key id" "passphrase"
 ```
 
@@ -119,18 +121,18 @@ If ```passphrase``` is omitted, it will be prompted for. The prompt will be hidd
 #### Reset Yubikey's OpenPGP module
 **BE AWARE:** Only tested with Yubikey 4 NEO and Yubikey 5
 ```
-cd windows\batch
+cd windows\cmd
 resetyubi.bat
 ```
 
 #### Find Yubikey Slot
 ```
-cd windows/batch
+cd windows\cmd
 findyubi.bat
 ```
 
 ### Key Branding  
-It is possible to "brand" your generated keys, i. e. give the user name and the comment a custom touch e. g. for your company. This can be controlled by editing the file `windows/batch/lib/branding.bat`.
+It is possible to "brand" your generated keys, i. e. give the user name and the comment a custom touch e. g. for your company. This can be controlled by editing the file `windows\cmd\lib\branding.bat`.
 
 The default will produce a key like this:
 
@@ -162,6 +164,8 @@ sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
       Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
 uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key of itemis AG's Max Muster) <max.muster@host.de>
 ```
+  
+*Be aware:* GPG does not support arbitrary charaters in key comments. Especially parantheses '(' and ')' will cause problems. On Windows some additional characters may cause trouble, e. g. * ? & or %. Don't use them.
 
 ## Unix
 
@@ -215,6 +219,8 @@ sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
       Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
 uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key of itemis AG's Max Muster) <max.muster@host.de>
 ```
+
+*Be aware:* GPG does not support arbitrary charaters in key comments. Especially parantheses '(' and ')' will cause problems. Don't use them.
 
 ### Override GPG Binaries
 Since the original bash scripts have been developed on Windows with git-bash and gpg4win, it was necessary to override the gpg binaries provided by git-bash with those of gpg4win.

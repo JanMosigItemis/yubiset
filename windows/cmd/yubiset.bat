@@ -92,6 +92,8 @@ if defined powershell_available (
 	set /p passphrase=Please enter your passphrase: 
 )
 
+echo.
+
 call %lib_dir%/branding.bat "%user_name%"
 %ifErr% echo %error_prefix%: Could not load key branding information. & call :cleanup & goto end_with_error
 
@@ -99,13 +101,16 @@ call %lib_dir%/branding.bat "%user_name%"
 echo %branded_user_name%>> %keygen_input_copy%
 echo %user_email%>> %keygen_input_copy%
 if defined branded_user_comment (
-	echo %branded_user_comment%>> %keygen_input_copy%
+	REM Some characters are not supported in key comments. See https://github.com/JanMosigItemis/yubiset/issues/4
+	set sanitized_user_comment=!branded_user_comment:^(=!
+	set sanitized_user_comment=!sanitized_user_comment:^)=!
+	echo Found custom user comment branding: !sanitized_user_comment!
+	echo !sanitized_user_comment!>> %keygen_input_copy%
 ) else (
 	echo.>> %keygen_input_copy%
 )
 
 REM Master key generation
-echo.
 echo Now generating the master key. This may take a while..
 type %keygen_input_copy% | gpg --command-fd=0 --status-fd=1 --expert --full-gen-key --pinentry-mode loopback --passphrase %passphrase% >nul 2>&1
 %ifErr% echo %error_prefix%: Generating the keypair raised an error. Exiting. & call :cleanup & goto end_with_error

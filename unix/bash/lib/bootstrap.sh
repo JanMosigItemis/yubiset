@@ -10,7 +10,7 @@ end_with_error()
 	exit 1
 }
 
-if [[ -z "${yubiset_version}" ]] ; then declare -r yubiset_version="0.3.1" ; fi
+if [[ -z "${yubiset_version}" ]] ; then declare -r yubiset_version="0.3.2.Bash" ; fi
 if [[ -z "${me}" ]] ; then declare -r me="$(basename $0)" ; fi
 
 # https://stackoverflow.com/questions/630372/determine-the-path-of-the-executing-bash-script
