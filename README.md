@@ -6,7 +6,9 @@ It generates ["the perfect key pair"](https://blog.eleven-labs.com/en/openpgp-al
 
 The Yubikey is also provided with user info and PIN setup.
 
-The scripts do also feature a fully automatic heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.
+The scripts do also feature a fully automatic heuristic for finding and setting up the correct (Windows) smart card slot device in case gpg does not find your Yubikey automatically.  
+
+*Remember:* On most installations, scripts may be interrupted by pressing Ctrl+C.  
 
 - [YUBISET](#yubiset)
 - [What does it do?](#what-does-it-do)
@@ -72,7 +74,7 @@ The file is accompanied by the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) ha
 ```
 # This makes sure, you downloaded an exact copy of the release from GitHub.
 sha512sum -c yubiset_vt.t.t.test.201907042021.sha512
-yubiset_vt.t.t.test.201907042021.zip: OK # This is the expected output.
+yubiset_vt.t.t.test.201907042021.zip: OK # This is the supposed output.
 
 ```
 
@@ -162,6 +164,8 @@ sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
       Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
 uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key of itemis AG's Max Muster) <max.muster@host.de>
 ```
+  
+*Be aware:* GPG does not support arbitrary charaters in key comments. Especially parantheses '(' and ')' will cause problems. On Windows some additional characters may cause trouble, e. g. * ? & or %. Don't use them.
 
 ## Unix
 
@@ -215,6 +219,8 @@ sec   rsa4096/0x94AF5E3D1575AC6A 2019-07-01 [C] [expires: 2020-06-30]
       Key fingerprint = 3B90 7B16 76E6 9F6F 59D1  D103 94AF 5E3D 1575 AC6A
 uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key of itemis AG's Max Muster) <max.muster@host.de>
 ```
+
+*Be aware:* GPG does not support arbitrary charaters in key comments. Especially parantheses '(' and ')' will cause problems. Don't use them.
 
 ### Override GPG Binaries
 Since the original bash scripts have been developed on Windows with git-bash and gpg4win, it was necessary to override the gpg binaries provided by git-bash with those of gpg4win.

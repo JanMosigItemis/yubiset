@@ -6,6 +6,8 @@ REM Arg 1: User name
 REM
 
 set branded_user_name=%~1
+REM Be aware: GPG does not support arbitrary charaters in key comments. Especially parantheses '(' and ')' will cause problems.
+REM On Windows some additional characters may cause trouble, e. g. * ? & or %. Don't use them.
 set branded_user_comment=
 
 REM What follows is a trick to get the variables into the context of the calling script (which should be a local context as well) without polluting the global env.
