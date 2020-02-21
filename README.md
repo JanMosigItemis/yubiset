@@ -41,7 +41,7 @@ The scripts do also feature a fully automatic heuristic for finding and setting 
   * [README.md Table of Contents](#readmemd-table-of-contents)
 
 # Supported Environments
-* Windows (Batch)
+* Windows (CMD)
 * Windows ([git-bash](https://gitforwindows.org))
 * Unix (Bash)
 
@@ -102,7 +102,7 @@ gpg --import JanMosigItemisGitHub.asc
 
 ### Start here: Key generation & Yubikey setup (all in one script)
 ```
-cd windows\batch
+cd windows\cmd
 yubiset.bat
 ```
 In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `yubiset.bat 4` instead.
@@ -112,7 +112,7 @@ The main script will use Powershell if it is available in order to hide the pass
 The following scripts may be used standalone but are also called from the `yubiset` main script:
 #### Move PGP keys to Yubikey only
 ```
-cd windows\batch
+cd windows\cmd
 setupyubi.bat "Given Name Surname" "my.email@provider.com" "PGP key id" "passphrase"
 ```
 
@@ -121,18 +121,18 @@ If ```passphrase``` is omitted, it will be prompted for. The prompt will be hidd
 #### Reset Yubikey's OpenPGP module
 **BE AWARE:** Only tested with Yubikey 4 NEO and Yubikey 5
 ```
-cd windows\batch
+cd windows\cmd
 resetyubi.bat
 ```
 
 #### Find Yubikey Slot
 ```
-cd windows/batch
+cd windows\cmd
 findyubi.bat
 ```
 
 ### Key Branding  
-It is possible to "brand" your generated keys, i. e. give the user name and the comment a custom touch e. g. for your company. This can be controlled by editing the file `windows/batch/lib/branding.bat`.
+It is possible to "brand" your generated keys, i. e. give the user name and the comment a custom touch e. g. for your company. This can be controlled by editing the file `windows\cmd\lib\branding.bat`.
 
 The default will produce a key like this:
 
