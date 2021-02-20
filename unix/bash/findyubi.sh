@@ -80,7 +80,7 @@ find_slot_heuristic()
 		if [ -s "${gpg_home}/scdaemon.conf" ] ; then echo >> "${gpg_home}/scdaemon.conf" ; fi
 		echo ..Success!
 	else
-		touch "${gpg_home}/${conf_backup}"
+		touch "${gpg_home}/${conf_backup}" || { cleanup; end_with_error "Could not create backup of scdaemon.conf." ; }
 	fi
 
 	#

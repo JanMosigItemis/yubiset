@@ -10,7 +10,7 @@ end_with_error()
 	exit 1
 }
 
-if [[ -z "${yubiset_version}" ]] ; then declare -r yubiset_version="0.3.2.Bash" ; fi
+if [[ -z "${yubiset_version}" ]] ; then declare -r yubiset_version="0.3.3.Bash" ; fi
 if [[ -z "${me}" ]] ; then declare -r me="$(basename $0)" ; fi
 
 # https://stackoverflow.com/questions/630372/determine-the-path-of-the-executing-bash-script
@@ -28,7 +28,7 @@ fi
 if [[ -z "${conf_dir}" ]] ; then declare -r conf_dir="${root_folder}/conf_templates" ; fi
 if [[ -z "${input_dir}" ]] ; then declare -r input_dir="${root_folder}/input_files" ; fi
 if [[ -z "${key_backups_dir}" ]] ; then 
-	cd ~
+	cd "${HOME}"
 	_cwd="$(pwd -P)"
 	cd "${OLDPWD}"
 	declare -r key_backups_dir="${_cwd}/.yubiset_key_backups" ; fi
