@@ -174,7 +174,7 @@ uid                   [ultimate] Max Muster (itemis AG) (Vocational OpenPGP key 
 cd unix/bash
 sh yubiset.sh
 ```
-In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `sh yubiset .sh 4` instead.
+In case your Yubikey does only support subkeys of 2048bit length (like the NEO), use `sh yubiset.sh 4` instead.
 
 The following scripts may be used standalone but are also called from the `yubiset` main script:
 #### Move PGP keys to Yubikey only
